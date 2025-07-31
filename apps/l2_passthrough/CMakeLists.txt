@@ -1,4 +1,5 @@
-# CMake file for $(basename apps/l2_passthrough)
-add_custom_target($(basename apps/l2_passthrough)_dummy
-    COMMENT "Placeholder for $(basename apps/l2_passthrough) example"
+# apps/l2_passthrough/CMakeLists.txt
+add_custom_target(l2_passthrough_dummy
+    COMMENT "Placeholder for L2 Passthrough example"
+    VERBATIM
 )
