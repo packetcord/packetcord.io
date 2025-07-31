@@ -1,9 +1,12 @@
 [submodule "modules/cord-flow"]
 	path = modules/cord-flow
 	url = https://github.com/packetcord/cord-flow.git
+	branch = main
 [submodule "modules/cord-crypto"]
 	path = modules/cord-crypto
 	url = https://github.com/packetcord/cord-crypto.git
+	branch = main
 [submodule "modules/cord-craft"]
 	path = modules/cord-craft
 	url = https://github.com/packetcord/cord-craft.git
+	branch = main
