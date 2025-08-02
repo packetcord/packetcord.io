@@ -4,15 +4,36 @@
 
 #define MTU_SIZE 1420
 
+static struct {
+    CordL2RawSocketFlowPoint  *l2_eth;
+    CordL3StackInjectFlowPoint *l3_si;
+    CordL4UdpFlowPoint        *l4_udp;
+} g_app_ctx;
+
+void sigint_callback(int sig)
+{
+    CORD_LOG("\nCaught signal %d (Ctrl+C). Closing sockets and exiting...\n", sig);
+    
+    CordL2RawSocketFlowPoint_dtor(g_app_ctx.l2_eth);
+    CordL3StackInjectFlowPoint_dtor(g_app_ctx.l3_si);
+    CordL4UdpFlowPoint_dtor(g_app_ctx.l4_udp);
+
+    _Exit(0);  // async‐safe exit
+}
+
 int main(void)
 {
-    CordL2RawSocketFlowPoint l2_eth = NEW_ON_STACK(CordL2RawSocketFlowPoint, 1, MTU_SIZE, "eth0");
-    CordL3StackInjectFlowPoint l3_si = NEW_ON_STACK(CordL3StackInjectFlowPoint, 2, MTU_SIZE);
-    CordL4UdpFlowPoint l4_udp = NEW_ON_STACK(CordL4UdpFlowPoint, 3, MTU_SIZE, inet_addr("0.0.0.0"), inet_addr("0.0.0.0"), 50000, 60000);
+    CordL2RawSocketFlowPoint *l2_eth = NEW(CordL2RawSocketFlowPoint, 1, MTU_SIZE, "eth0");
+    CordL3StackInjectFlowPoint *l3_si = NEW(CordL3StackInjectFlowPoint, 2, MTU_SIZE);
+    CordL4UdpFlowPoint *l4_udp = NEW(CordL4UdpFlowPoint, 3, MTU_SIZE, inet_addr("0.0.0.0"), inet_addr("0.0.0.0"), 50000, 60000);
 
-    close(l2_eth.fd); // Put it inside the dtor()
-    close(l3_si.fd);  // Put it inside the dtor()
-    close(l4_udp.fd); // Put it inside the dtor()
+    g_app_ctx.l2_eth = l2_eth;
+    g_app_ctx.l3_si = l3_si;
+    g_app_ctx.l4_udp = l4_udp;
+
+    close(l2_eth->fd); // Put it inside the dtor()
+    close(l3_si->fd);  // Put it inside the dtor()
+    close(l4_udp->fd); // Put it inside the dtor()
 
     CORD_LOG("Hello from the PacketCord App!\n");
 
