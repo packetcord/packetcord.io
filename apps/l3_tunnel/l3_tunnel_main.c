@@ -1,14 +1,26 @@
+#include <cord_flow/event_handler/cord_linux_api_event_handler.h>
 #include <cord_flow/flow_point/cord_l2_raw_socket_flow_point.h>
-#include <cord_flow/flow_point/cord_l4_udp_flow_point.h>
 #include <cord_flow/flow_point/cord_l3_stack_inject_flow_point.h>
+#include <cord_flow/flow_point/cord_l4_udp_flow_point.h>
+#include <cord_error.h>
 
 #define MTU_SIZE 1420
 
-static struct {
-    CordL2RawSocketFlowPoint  *l2_eth;
-    CordL3StackInjectFlowPoint *l3_si;
-    CordL4UdpFlowPoint        *l4_udp;
+static struct
+{
+    CordL2RawSocketFlowPoint    *l2_eth;
+    CordL3StackInjectFlowPoint  *l3_si;
+    CordL4UdpFlowPoint          *l4_udp;
+    CordLinuxApiEventHandler    *linux_evh;
 } g_app_ctx;
+
+void cord_destroy(void)
+{
+    CordL2RawSocketFlowPoint_dtor(g_app_ctx.l2_eth);
+    CordL3StackInjectFlowPoint_dtor(g_app_ctx.l3_si);
+    CordL4UdpFlowPoint_dtor(g_app_ctx.l4_udp);
+    CordLinuxApiEventHandler_dtor(g_app_ctx.linux_evh);
+}
 
 void sigint_callback(int sig)
 {
@@ -18,24 +30,36 @@ void sigint_callback(int sig)
     CordL3StackInjectFlowPoint_dtor(g_app_ctx.l3_si);
     CordL4UdpFlowPoint_dtor(g_app_ctx.l4_udp);
 
-    _Exit(0);  // async‐safe exit
+    CORD_ASYNC_SAFE_EXIT(CORD_OK);
 }
 
 int main(void)
 {
-    CordL2RawSocketFlowPoint *l2_eth = NEW(CordL2RawSocketFlowPoint, 1, MTU_SIZE, "eth0");
-    CordL3StackInjectFlowPoint *l3_si = NEW(CordL3StackInjectFlowPoint, 2, MTU_SIZE);
-    CordL4UdpFlowPoint *l4_udp = NEW(CordL4UdpFlowPoint, 3, MTU_SIZE, inet_addr("0.0.0.0"), inet_addr("0.0.0.0"), 50000, 60000);
+    CORD_LOG("Launching the PacketCord Tunnel App!\n");
 
-    g_app_ctx.l2_eth = l2_eth;
-    g_app_ctx.l3_si = l3_si;
-    g_app_ctx.l4_udp = l4_udp;
+    signal(SIGINT, sigint_callback);
 
-    close(l2_eth->fd); // Put it inside the dtor()
-    close(l3_si->fd);  // Put it inside the dtor()
-    close(l4_udp->fd); // Put it inside the dtor()
+    CordFlowPoint *l2_eth = (CordFlowPoint *) NEW(CordL2RawSocketFlowPoint,     'A', MTU_SIZE, "eth0");
+    CordFlowPoint *l3_si  = (CordFlowPoint *) NEW(CordL3StackInjectFlowPoint,   'B', MTU_SIZE);
+    CordFlowPoint *l4_udp = (CordFlowPoint *) NEW(CordL4UdpFlowPoint,           'C', MTU_SIZE, inet_addr("0.0.0.0"), inet_addr("0.0.0.0"), 50000, 60000);
 
-    CORD_LOG("Hello from the PacketCord App!\n");
+    CordEventHandler *linux_evh = (CordEventHandler *) NEW(CordLinuxApiEventHandler, 'E', -1);
 
+    g_app_ctx.l2_eth    = (CordL2RawSocketFlowPoint *)l2_eth;
+    g_app_ctx.l3_si     = (CordL3StackInjectFlowPoint *)l3_si;
+    g_app_ctx.l4_udp    = (CordL4UdpFlowPoint *)l4_udp;
+    g_app_ctx.linux_evh = (CordLinuxApiEventHandler *)linux_evh;
+
+    linux_evh->register_flow_point(linux_evh, (void *)&((CordL2RawSocketFlowPoint *)l2_eth)->fd);
+    linux_evh->register_flow_point(linux_evh, (void *)&((CordL4UdpFlowPoint *)l4_udp)->fd);
+
+    //
+    // ... TBC ...
+    //
+
+    CORD_LOG("Destroying all objects!\n");
+    cord_destroy();
+
+    CORD_LOG("Terminating the PacketCord Tunnel App!\n");
     return CORD_OK;
 }
