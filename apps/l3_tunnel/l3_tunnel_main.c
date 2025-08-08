@@ -41,6 +41,7 @@ int main(void)
     CordFlowPoint *l4_udp = (CordFlowPoint *) NEW(CordL4UdpFlowPoint,           'C', MTU_SIZE, inet_addr("0.0.0.0"), inet_addr("0.0.0.0"), 50000, 60000);
     CordEventHandler *linux_evh = (CordEventHandler *) NEW(CordLinuxApiEventHandler, 'E', -1);
 
+    // To be re-written in a much better manner
     g_app_ctx.l2_eth    = (CordL2RawSocketFlowPoint *)l2_eth;
     g_app_ctx.l3_si     = (CordL3StackInjectFlowPoint *)l3_si;
     g_app_ctx.l4_udp    = (CordL4UdpFlowPoint *)l4_udp;
