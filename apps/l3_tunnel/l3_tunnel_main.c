@@ -42,7 +42,6 @@ int main(void)
     CordFlowPoint *l2_eth = (CordFlowPoint *) NEW(CordL2RawSocketFlowPoint,     'A', MTU_SIZE, "eth0");
     CordFlowPoint *l3_si  = (CordFlowPoint *) NEW(CordL3StackInjectFlowPoint,   'B', MTU_SIZE);
     CordFlowPoint *l4_udp = (CordFlowPoint *) NEW(CordL4UdpFlowPoint,           'C', MTU_SIZE, inet_addr("0.0.0.0"), inet_addr("0.0.0.0"), 50000, 60000);
-
     CordEventHandler *linux_evh = (CordEventHandler *) NEW(CordLinuxApiEventHandler, 'E', -1);
 
     g_app_ctx.l2_eth    = (CordL2RawSocketFlowPoint *)l2_eth;
@@ -50,15 +49,16 @@ int main(void)
     g_app_ctx.l4_udp    = (CordL4UdpFlowPoint *)l4_udp;
     g_app_ctx.linux_evh = (CordLinuxApiEventHandler *)linux_evh;
 
-    linux_evh->register_flow_point(linux_evh, (void *)&((CordL2RawSocketFlowPoint *)l2_eth)->fd);
-    linux_evh->register_flow_point(linux_evh, (void *)&((CordL4UdpFlowPoint *)l4_udp)->fd);
+    linux_evh->register_flow_point(linux_evh, (void *)&((CordL2RawSocketFlowPoint *)l2_eth)->fd); // Rewrite via get_fd() method
+    linux_evh->register_flow_point(linux_evh, (void *)&((CordL4UdpFlowPoint *)l4_udp)->fd);       // Rewrite via getter as well
 
     //
-    // ... TBC ...
+    // Loop
     //
+    linux_evh->wait(linux_evh);
 
     CORD_LOG("Destroying all objects!\n");
-    cord_destroy();
+    cord_destroy();                                                                               // Rewrite via a destoy() method, eliminate the need for the global context pointers
 
     CORD_LOG("Terminating the PacketCord Tunnel App!\n");
     return CORD_OK;
