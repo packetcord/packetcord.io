@@ -49,13 +49,13 @@ int main(void)
     g_app_ctx.l4_udp    = (CordL4UdpFlowPoint *)l4_udp;
     g_app_ctx.linux_evh = (CordLinuxApiEventHandler *)linux_evh;
 
-    linux_evh->register_flow_point(linux_evh, (void *)&((CordL2RawSocketFlowPoint *)l2_eth)->fd); // Rewrite via get_fd() method
-    linux_evh->register_flow_point(linux_evh, (void *)&((CordL4UdpFlowPoint *)l4_udp)->fd);       // Rewrite via getter as well
+    CORDEVENTHANDLER_REGISTER_FLOW_POINT(linux_evh, (void *)&((CordL2RawSocketFlowPoint *)l2_eth)->fd); // Rewrite via get_fd() method
+    CORDEVENTHANDLER_REGISTER_FLOW_POINT(linux_evh, (void *)&((CordL4UdpFlowPoint *)l4_udp)->fd);       // Rewrite via getter as well
 
     //
     // Loop
     //
-    linux_evh->wait(linux_evh);
+    int wait_ret = CORDEVENTHANDLER_WAIT(linux_evh);
 
     CORD_LOG("Destroying all objects!\n");
     cord_destroy();                                                                               // Rewrite via a destoy() method, eliminate the need for the global context pointers
