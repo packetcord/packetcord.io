@@ -17,10 +17,9 @@ static struct
 void cord_destroy(void)
 {
     CORD_LOG("Destroying all objects!\n");
-    CordL2RawSocketFlowPoint_dtor(g_app_ctx.l2_eth);
+    CORD_DESTROY_L2_RAW_SOCKET_FLOW_POINT(g_app_ctx.l2_eth);
     CordL3StackInjectFlowPoint_dtor(g_app_ctx.l3_si);
     CordL4UdpFlowPoint_dtor(g_app_ctx.l4_udp);
-    CordLinuxApiEventHandler_dtor(g_app_ctx.linux_evh);
 }
 
 void sigint_callback(int sig)
@@ -36,10 +35,10 @@ int main(void)
 
     signal(SIGINT, sigint_callback);
 
-    CordFlowPoint *l2_eth = (CordFlowPoint *) NEW(CordL2RawSocketFlowPoint,     'A', MTU_SIZE, "enp6s0");
-    CordFlowPoint *l3_si  = (CordFlowPoint *) NEW(CordL3StackInjectFlowPoint,   'B', MTU_SIZE);
-    CordFlowPoint *l4_udp = (CordFlowPoint *) NEW(CordL4UdpFlowPoint,           'C', MTU_SIZE, inet_addr("0.0.0.0"), inet_addr("0.0.0.0"), 50000, 60000);
-    CordEventHandler *linux_evh = (CordEventHandler *) NEW(CordLinuxApiEventHandler, 'E', -1);
+    CordFlowPoint *l2_eth = CORD_CREATE_L2_RAW_SOCKET_FLOW_POINT('A', 1500, "enp6s0");
+    CordFlowPoint *l3_si  = (CordFlowPoint *) NEW_ON_HEAP(CordL3StackInjectFlowPoint,   'B', MTU_SIZE);
+    CordFlowPoint *l4_udp = (CordFlowPoint *) NEW_ON_HEAP(CordL4UdpFlowPoint,           'C', MTU_SIZE, inet_addr("0.0.0.0"), inet_addr("0.0.0.0"), 50000, 60000);
+    CordEventHandler *linux_evh = (CordEventHandler *) NEW_ON_HEAP(CordLinuxApiEventHandler, 'E', -1);
 
     // To be re-written in a much better manner
     g_app_ctx.l2_eth    = (CordL2RawSocketFlowPoint *)l2_eth;
