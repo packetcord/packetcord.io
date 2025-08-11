@@ -8,55 +8,55 @@
 
 static struct
 {
-    CordL2RawSocketFlowPoint    *l2_eth;
-    CordL3StackInjectFlowPoint  *l3_si;
-    CordL4UdpFlowPoint          *l4_udp;
-    CordLinuxApiEventHandler    *linux_evh;
-} g_app_ctx;
+    CordFlowPoint *l2_eth;
+    CordFlowPoint *l3_si;
+    CordFlowPoint *l4_udp;
+    CordEventHandler *linux_evh;
+} cord_app_context;
 
-void cord_destroy(void)
+void cord_app_cleanup(void)
 {
-    CORD_LOG("Destroying all objects!\n");
-    CORD_DESTROY_L2_RAW_SOCKET_FLOW_POINT(g_app_ctx.l2_eth);
-    CordL3StackInjectFlowPoint_dtor(g_app_ctx.l3_si);
-    CordL4UdpFlowPoint_dtor(g_app_ctx.l4_udp);
+    CORD_LOG("[CordApp] Destroying all objects!\n");
+    CORD_DESTROY_FLOW_POINT(cord_app_context.l2_eth);
+    CORD_DESTROY_FLOW_POINT(cord_app_context.l3_si);
+    CORD_DESTROY_FLOW_POINT(cord_app_context.l4_udp);
+    CORD_DESTROY_EVENT_HANDLER(cord_app_context.linux_evh);
 }
 
-void sigint_callback(int sig)
+void cord_app_sigint_callback(int sig)
 {
-    cord_destroy();
-    CORD_LOG("Terminating the PacketCord Tunnel App!\n");
+    cord_app_cleanup();
+    CORD_LOG("[CordApp] Terminating the PacketCord Tunnel App!\n");
     CORD_ASYNC_SAFE_EXIT(CORD_OK);
 }
 
 int main(void)
 {
-    CORD_LOG("Launching the PacketCord Tunnel App!\n");
+    CORD_LOG("[CordApp] Launching the PacketCord Tunnel App!\n");
 
-    signal(SIGINT, sigint_callback);
+    signal(SIGINT, cord_app_sigint_callback);
 
-    CordFlowPoint *l2_eth = CORD_CREATE_L2_RAW_SOCKET_FLOW_POINT('A', 1500, "enp6s0");
-    CordFlowPoint *l3_si  = (CordFlowPoint *) NEW_ON_HEAP(CordL3StackInjectFlowPoint,   'B', MTU_SIZE);
-    CordFlowPoint *l4_udp = (CordFlowPoint *) NEW_ON_HEAP(CordL4UdpFlowPoint,           'C', MTU_SIZE, inet_addr("0.0.0.0"), inet_addr("0.0.0.0"), 50000, 60000);
-    CordEventHandler *linux_evh = (CordEventHandler *) NEW_ON_HEAP(CordLinuxApiEventHandler, 'E', -1);
+    cord_app_context.l2_eth = CORD_CREATE_L2_RAW_SOCKET_FLOW_POINT('A', "enp6s0");
+    cord_app_context.l3_si  = CORD_CREATE_L3_STACK_INJECT_FLOW_POINT('B');
+    cord_app_context.l4_udp = CORD_CREATE_L4_UDP_FLOW_POINT('C', inet_addr("0.0.0.0"), inet_addr("0.0.0.0"), 50000, 60000);
+    cord_app_context.linux_evh = CORD_CREATE_LINUX_API_EVENT_HANDLER('E', -1);
 
-    // To be re-written in a much better manner
-    g_app_ctx.l2_eth    = (CordL2RawSocketFlowPoint *)l2_eth;
-    g_app_ctx.l3_si     = (CordL3StackInjectFlowPoint *)l3_si;
-    g_app_ctx.l4_udp    = (CordL4UdpFlowPoint *)l4_udp;
-    g_app_ctx.linux_evh = (CordLinuxApiEventHandler *)linux_evh;
+    CORD_EVENT_HANDLER_REGISTER_FLOW_POINT(cord_app_context.linux_evh, cord_app_context.l2_eth);
+    CORD_EVENT_HANDLER_REGISTER_FLOW_POINT(cord_app_context.linux_evh, cord_app_context.l4_udp);
 
-    CORDEVENTHANDLER_REGISTER_FLOW_POINT(linux_evh, l2_eth);
-    CORDEVENTHANDLER_REGISTER_FLOW_POINT(linux_evh, l4_udp);
+    // print the counter
+    CORD_LOG("Registered FPs: %u\n", cord_app_context.linux_evh->nb_registered_fps);
 
     while (1)
     {
-        int nb_fds = CORDEVENTHANDLER_WAIT(linux_evh);
+        int nb_fds = CORD_EVENT_HANDLER_WAIT(cord_app_context.linux_evh);
 
         //
         // Logic TBD
         //
     }
+
+    cord_app_cleanup();
 
     return CORD_OK;
 }
