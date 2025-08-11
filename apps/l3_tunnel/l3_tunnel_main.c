@@ -41,7 +41,6 @@ int main(void)
     cord_app_context.l4_udp = CORD_CREATE_L4_UDP_FLOW_POINT('B', inet_addr("0.0.0.0"), inet_addr("0.0.0.0"), 50000, 60000);
 
     cord_app_context.evh = CORD_CREATE_LINUX_API_EVENT_HANDLER('E', -1);
-    CordLinuxApiEventHandler *linux_evh = (CordLinuxApiEventHandler *)cord_app_context.evh; // TBD
 
     CORD_EVENT_HANDLER_REGISTER_FLOW_POINT(cord_app_context.evh, cord_app_context.l2_eth);
     CORD_EVENT_HANDLER_REGISTER_FLOW_POINT(cord_app_context.evh, cord_app_context.l4_udp);
@@ -65,14 +64,16 @@ int main(void)
 
         for (uint8_t n = 0; n < nb_fds; n++)
         {
-            if (linux_evh->events[n].data.fd == cord_app_context.l2_eth->io_handle)
+            if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth->io_handle)
             {
                 // Event on Flow Point 'A' - Ethernet interface "enp6s0"
+                CORD_LOG("Event on FP(A)\n");
             }
 
-            if (linux_evh->events[n].data.fd == cord_app_context.l4_udp->io_handle)
+            if (cord_app_context.evh->events[n].data.fd == cord_app_context.l4_udp->io_handle)
             {
                 // Event on Flow Point 'B' - UDP tunnel socket
+                CORD_LOG("Event on FP(B)\n");
             }
         }
     }
