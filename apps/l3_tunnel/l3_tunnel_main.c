@@ -119,12 +119,9 @@ int main(void)
 
                 if ((dst_ip.s_addr & netmask.s_addr) == prefix_ip.s_addr)
                 {
-                    CORD_LOG("Matching IP %s, sending over the tunnel...\n", MATCH_IP_TO_TUNNEL);
+                    uint16_t total_len = ntohs(ip->tot_len);
 
-                    struct iphdr *ip_header = (struct iphdr *)(buffer + sizeof(struct ethhdr)); // To be fixed - same as line 103
-                    uint16_t total_len = ntohs(ip_header->tot_len);                             // To be fixed - same as line 104
-
-                    cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l4_udp, ip_header, total_len, &tx_bytes);
+                    cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l4_udp, ip, total_len, &tx_bytes);
                     if (cord_retval != CORD_OK)
                     {
                         // Handle the error
