@@ -60,7 +60,7 @@ int main(void)
 
     cord_app_context.l2_eth = CORD_CREATE_L2_RAW_SOCKET_FLOW_POINT('A', "enp6s0");
     cord_app_context.l3_si  = CORD_CREATE_L3_STACK_INJECT_FLOW_POINT('I');
-    cord_app_context.l4_udp = CORD_CREATE_L4_UDP_FLOW_POINT('B', inet_addr("192.168.100.6"), inet_addr("38.242.203.214"), 50000, 60000);
+    cord_app_context.l4_udp = CORD_CREATE_L4_UDP_FLOW_POINT('B', inet_addr("192.168.100.6"), inet_addr("38.242.203.214"), 60000, 50000);
 
     cord_app_context.evh = CORD_CREATE_LINUX_API_EVENT_HANDLER('E', -1);
 
