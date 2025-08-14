@@ -106,7 +106,7 @@ int main(void)
                 if (rx_bytes < sizeof(struct ethhdr) + iphdr_len)
                     continue; // IP header incomplete
 
-                if (((CordL2RawSocketFlowPoint *)cord_app_context.l2_eth)->anchor_bind_addr.sll_pkttype == PACKET_OUTGOING)
+                if (((CordL2RawSocketFlowPoint *)cord_app_context.l2_eth)->anchor_bind_addr.sll_pkttype == PACKET_OUTGOING) // TBD - refactor
                     continue; // Ensure this is not an outgoing packet
 
                 if (rx_bytes < sizeof(struct ethhdr) + iphdr_len + sizeof(struct udphdr))
@@ -134,7 +134,27 @@ int main(void)
 
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l4_udp->io_handle)
             {
+                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l4_udp, buffer, MTU_SIZE, &rx_bytes);
+                if (cord_retval != CORD_OK)
+                    continue; // Raw socket receive error
 
+                struct iphdr *ip_inner = (struct iphdr *)buffer;
+
+                if (rx_bytes != ntohs(ip_inner->tot_len))
+                    continue; // Packet partially received
+
+                if (ip_inner->version != 4)
+                    continue;
+
+                int ip_inner_hdrlen = ip_inner->ihl << 2;
+
+                CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(((CordL3StackInjectFlowPoint *)(cord_app_context.l3_si)), ip_inner->daddr); // TBD - refactor
+                
+                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l3_si, buffer, ntohs(ip_inner->tot_len), &tx_bytes);
+                if (cord_retval != CORD_OK)
+                {
+                    // Handle the error
+                }
             }
         }
     }
