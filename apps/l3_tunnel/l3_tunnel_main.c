@@ -5,6 +5,7 @@
 #include <cord_error.h>
 
 #define MTU_SIZE 1420
+#define BUFFER_SIZE (MTU_SIZE + 20)
 
 #define MATCH_IP_TO_TUNNEL  "11.11.11.100"
 #define MATCH_NETMASK       "255.255.255.255"
@@ -47,7 +48,7 @@ int main(void)
     inet_pton(AF_INET, MATCH_NETMASK, &netmask);
 
     cord_retval_t cord_retval;
-    uint8_t buffer[MTU_SIZE] = { 0x00 };
+    uint8_t buffer[BUFFER_SIZE] = { 0x00 };
     size_t rx_bytes = 0;
     size_t tx_bytes = 0;
 
@@ -86,7 +87,7 @@ int main(void)
         {
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth->io_handle)
             {
-                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth, buffer, MTU_SIZE, &rx_bytes);
+                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth, buffer, BUFFER_SIZE, &rx_bytes);
                 if (cord_retval != CORD_OK)
                     continue; // Raw socket receive error
 
@@ -131,7 +132,7 @@ int main(void)
 
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l4_udp->io_handle)
             {
-                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l4_udp, buffer, MTU_SIZE, &rx_bytes);
+                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l4_udp, buffer, BUFFER_SIZE, &rx_bytes);
                 if (cord_retval != CORD_OK)
                     continue; // Raw socket receive error
 
