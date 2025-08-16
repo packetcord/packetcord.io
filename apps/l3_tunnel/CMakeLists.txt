@@ -1,3 +1,8 @@
+# Default: strict ISO C23 for everything
+set(CMAKE_C_STANDARD        23 CACHE STRING "" FORCE)
+set(CMAKE_C_STANDARD_REQUIRED ON   CACHE BOOL   "" FORCE)
+set(CMAKE_C_EXTENSIONS      OFF  CACHE BOOL   "" FORCE)
+
 # apps/l3_tunnel/CMakeLists.txt
 add_executable(l3_tunnel_app l3_tunnel_main.c)
 
