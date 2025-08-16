@@ -110,7 +110,7 @@ int main(void)
                 if (rx_bytes < sizeof(struct ethhdr) + iphdr_len)
                     continue; // IP header incomplete
 
-                if (((CordL2RawSocketFlowPoint *)cord_app_context.l2_eth)->anchor_bind_addr.sll_pkttype == PACKET_OUTGOING) // TBD - refactor
+                if (((CordL2RawSocketFlowPoint *)cord_app_context.l2_eth)->anchor_bind_addr.sll_pkttype == PACKET_OUTGOING) // TBD - implement as method
                     continue; // Ensure this is not an outgoing packet
 
                 if (rx_bytes < sizeof(struct ethhdr) + iphdr_len + sizeof(struct udphdr))
@@ -149,7 +149,7 @@ int main(void)
 
                 int ip_inner_hdrlen = ip_inner->ihl << 2;
 
-                CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(((CordL3StackInjectFlowPoint *)(cord_app_context.l3_si)), ip_inner->daddr); // TBD - refactor
+                CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(cord_app_context.l3_si, ip_inner->daddr);
                 
                 cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l3_si, buffer, ntohs(ip_inner->tot_len), &tx_bytes);
                 if (cord_retval != CORD_OK)
