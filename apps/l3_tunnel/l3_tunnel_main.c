@@ -5,7 +5,10 @@
 #include <cord_error.h>
 
 #define MTU_SIZE 1420
-#define BUFFER_SIZE (MTU_SIZE + 20)
+#define ETHERNET_HEADER_SIZE 14
+#define DOT1Q_TAG_SIZE 4
+
+#define BUFFER_SIZE (MTU_SIZE + ETHERNET_HEADER_SIZE)
 
 #define MATCH_IP_TO_TUNNEL  "11.11.11.100"
 #define MATCH_NETMASK       "255.255.255.255"
@@ -52,8 +55,8 @@ int main(void)
     size_t rx_bytes = 0;
     size_t tx_bytes = 0;
 
-    struct iphdr *ip = nullptr;
-    struct udphdr *udp = nullptr;
+    struct iphdr *ip = NULL;
+    struct udphdr *udp = NULL;
 
     CORD_LOG("[CordApp] Launching the PacketCord Tunnel App!\n");
 
