@@ -2,6 +2,7 @@
 #include <cord_flow/flow_point/cord_l2_raw_socket_flow_point.h>
 #include <cord_flow/flow_point/cord_l3_stack_inject_flow_point.h>
 #include <cord_flow/flow_point/cord_l4_udp_flow_point.h>
+#include <cord_flow/memory/cord_memory.h>
 #include <cord_error.h>
 
 #define MTU_SIZE 1420
@@ -51,7 +52,7 @@ int main(void)
     inet_pton(AF_INET, MATCH_NETMASK, &netmask);
 
     cord_retval_t cord_retval;
-    uint8_t buffer[BUFFER_SIZE] = { 0x00 };
+    CORD_BUFFER(buffer, BUFFER_SIZE);
     size_t rx_bytes = 0;
     size_t tx_bytes = 0;
 
@@ -110,7 +111,7 @@ int main(void)
                 if (rx_bytes < sizeof(struct ethhdr) + iphdr_len)
                     continue; // IP header incomplete
 
-                if (((CordL2RawSocketFlowPoint *)cord_app_context.l2_eth)->anchor_bind_addr.sll_pkttype == PACKET_OUTGOING) // TBD - implement as method
+                if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUD(cord_app_context.l2_eth) != CORD_OK)
                     continue; // Ensure this is not an outgoing packet
 
                 if (rx_bytes < sizeof(struct ethhdr) + iphdr_len + sizeof(struct udphdr))
