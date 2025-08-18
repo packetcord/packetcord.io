@@ -23,9 +23,7 @@ static struct
 } cord_app_context;
 
 static void cord_app_setup(void)
-{
-    // Host config set
-}
+{ }
 
 static void cord_app_cleanup(void)
 {
@@ -34,8 +32,6 @@ static void cord_app_cleanup(void)
     CORD_DESTROY_FLOW_POINT(cord_app_context.l3_si);
     CORD_DESTROY_FLOW_POINT(cord_app_context.l4_udp);
     CORD_DESTROY_EVENT_HANDLER(cord_app_context.evh);
-
-    // Host config unset
 }
 
 static void cord_app_sigint_callback(int sig)
