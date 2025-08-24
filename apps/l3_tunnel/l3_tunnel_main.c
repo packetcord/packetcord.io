@@ -3,6 +3,7 @@
 #include <cord_flow/flow_point/cord_l3_stack_inject_flow_point.h>
 #include <cord_flow/flow_point/cord_l4_udp_flow_point.h>
 #include <cord_flow/memory/cord_memory.h>
+#include <cord_flow/match/cord_match.h>
 #include <cord_error.h>
 
 #define MTU_SIZE 1420
@@ -61,7 +62,7 @@ int main(void)
 
     cord_app_context.l2_eth = CORD_CREATE_L2_RAW_SOCKET_FLOW_POINT('A', "enp6s0");
     cord_app_context.l3_si  = CORD_CREATE_L3_STACK_INJECT_FLOW_POINT('I');
-    cord_app_context.l4_udp = CORD_CREATE_L4_UDP_FLOW_POINT('B', inet_addr("192.168.100.6"), inet_addr("38.242.203.214"), 60000, 50000);
+    cord_app_context.l4_udp = CORD_CREATE_L4_UDP_FLOW_POINT('B', inet_addr("192.168.100.5"), inet_addr("38.242.203.214"), 60000, 50000);
 
     cord_app_context.evh = CORD_CREATE_LINUX_API_EVENT_HANDLER('E', -1);
 
@@ -94,15 +95,18 @@ int main(void)
                 if (rx_bytes < sizeof(struct ethhdr))
                     continue; // Packet too short to contain Ethernet header
 
-                struct ethhdr *eth = (struct ethhdr *)buffer;
-                if (ntohs(eth->h_proto) != ETH_P_IP)
+                struct ethhdr *eth = cord_get_eth_hdr(buffer);
+                if (!cord_match_eth_type(eth, ETH_P_IP))
                     continue; // Only handle IPv4 packets
 
                 if (rx_bytes < sizeof(struct ethhdr) + sizeof(struct iphdr))
                     continue; // Too short for IP header
 
-                ip = (struct iphdr *)(buffer + sizeof(struct ethhdr));
-                int iphdr_len = ip->ihl << 2;
+                ip = cord_get_ipv4_hdr(buffer);
+                if (!cord_match_ipv4_version(ip))
+                    continue; // Not IPv4
+
+                int iphdr_len = cord_get_ipv4_ihl_value(ip) << 2;
 
                 if (rx_bytes < sizeof(struct ethhdr) + iphdr_len)
                     continue; // IP header incomplete
@@ -115,12 +119,12 @@ int main(void)
 
                 udp = (struct udphdr *)((char *)ip + iphdr_len);
 
-                struct in_addr src_ip = { .s_addr = ip->saddr };
-                struct in_addr dst_ip = { .s_addr = ip->daddr };
+                uint32_t src_ip = cord_get_ipv4_src_addr_value(ip);
+                uint32_t dst_ip = cord_get_ipv4_dst_addr_value(ip);
 
-                if ((dst_ip.s_addr & netmask.s_addr) == prefix_ip.s_addr)
+                if (cord_match_ipv4_dst_subnet(ip, prefix_ip.s_addr, netmask.s_addr))
                 {
-                    uint16_t total_len = ntohs(ip->tot_len);
+                    uint16_t total_len = cord_get_ipv4_total_length_value(ip);
 
                     cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l4_udp, ip, total_len, &tx_bytes);
                     if (cord_retval != CORD_OK)
@@ -136,19 +140,19 @@ int main(void)
                 if (cord_retval != CORD_OK)
                     continue; // Raw socket receive error
 
-                struct iphdr *ip_inner = (struct iphdr *)buffer;
+                struct iphdr *ip_inner = (struct iphdr *)buffer; //struct iphdr *ip_inner = cord_get_ipv4_hdr(buffer);
 
-                if (rx_bytes != ntohs(ip_inner->tot_len))
+                if (rx_bytes != cord_get_ipv4_total_length_value(ip_inner))
                     continue; // Packet partially received
 
-                if (ip_inner->version != 4)
+                if (!cord_match_ipv4_version(ip_inner))
                     continue;
 
-                int ip_inner_hdrlen = ip_inner->ihl << 2;
+                int ip_inner_hdrlen = cord_get_ipv4_ihl_value(ip_inner) << 2;
 
-                CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(cord_app_context.l3_si, ip_inner->daddr);
-                
-                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l3_si, buffer, ntohs(ip_inner->tot_len), &tx_bytes);
+                CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(cord_app_context.l3_si, ip_inner->daddr); //CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(cord_app_context.l3_si, cord_get_ipv4_dst_addr_value(ip_inner));
+
+                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l3_si, buffer, cord_get_ipv4_total_length_value(ip_inner), &tx_bytes);
                 if (cord_retval != CORD_OK)
                 {
                     // Handle the error
