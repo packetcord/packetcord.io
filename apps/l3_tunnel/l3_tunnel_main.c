@@ -140,7 +140,7 @@ int main(void)
                 if (cord_retval != CORD_OK)
                     continue; // Raw socket receive error
 
-                struct iphdr *ip_inner = (struct iphdr *)buffer; //struct iphdr *ip_inner = cord_get_ipv4_hdr(buffer);
+                struct iphdr *ip_inner = (struct iphdr *)buffer; // struct iphdr *ip_inner = cord_get_ipv4_hdr(buffer);
 
                 if (rx_bytes != cord_get_ipv4_total_length_value(ip_inner))
                     continue; // Packet partially received
@@ -150,7 +150,7 @@ int main(void)
 
                 int ip_inner_hdrlen = cord_get_ipv4_ihl_value(ip_inner) << 2;
 
-                CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(cord_app_context.l3_si, ip_inner->daddr); //CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(cord_app_context.l3_si, cord_get_ipv4_dst_addr_value(ip_inner));
+                CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(cord_app_context.l3_si, ip_inner->daddr); // CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(cord_app_context.l3_si, cord_get_ipv4_dst_addr_value(ip_inner));
 
                 cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l3_si, buffer, cord_get_ipv4_total_length_value(ip_inner), &tx_bytes);
                 if (cord_retval != CORD_OK)
