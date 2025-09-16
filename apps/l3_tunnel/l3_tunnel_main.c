@@ -25,7 +25,7 @@ static struct
 
 static void cord_app_setup(void)
 {
-    CORD_LOG("[CordApp] Expecting manual additional setup.\n");
+    CORD_LOG("[CordApp] Expecting manual additional setup - blackhole routes, interface MTU.\n");
 }
 
 static void cord_app_cleanup(void)
