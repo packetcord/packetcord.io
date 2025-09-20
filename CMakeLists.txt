@@ -37,16 +37,12 @@ else()
   )
 endif()
 
-# 5. cord-craft is still header-only (INTERFACE)
-if(EXISTS ${CMAKE_SOURCE_DIR}/modules/cord-craft/CMakeLists.txt)
-  add_subdirectory(modules/cord-craft)
-else()
-  add_library(cord_craft INTERFACE)
-  target_include_directories(cord_craft INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/modules/cord-craft/include>
-    $<INSTALL_INTERFACE:include>
-  )
-endif()
+# 5. Build cord-craft in GNU mode (like cord-flow)
+# Temporarily switch on GNU extensions
+set(CMAKE_C_EXTENSIONS ON CACHE BOOL "" FORCE)
+add_subdirectory(modules/cord-craft)
+# Restore strict C23 for downstream
+set(CMAKE_C_EXTENSIONS OFF CACHE BOOL "" FORCE)
 
 # 6. Example apps
 add_subdirectory(apps/l2_passthrough      EXCLUDE_FROM_ALL)
