@@ -107,6 +107,7 @@ int main()
     cord_ipv4_hdr_t *outer_ip_hdr = cord_get_ipv4_hdr_l3(buffer);
     CORD_L3_STACK_INJECTOR_SET_TARGET_IPV4(cord_app_context.l3_ci, cord_get_ipv4_dst_addr_l3(outer_ip_hdr));
 
+    CORD_LOG("[CordApp] Transmitting the crafted pseudo-tunnel packet...\n");
     cord_retval = CORD_INJECTOR_TX(cord_app_context.l3_ci, buffer, cord_get_ipv4_total_length_ntohs(outer_ip_hdr), &tx_bytes);
     if (cord_retval != CORD_OK)
     {
