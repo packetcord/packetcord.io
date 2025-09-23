@@ -51,7 +51,7 @@ int main(void)
     cord_ipv4_hdr_t *ip = NULL;
     cord_udp_hdr_t *udp = NULL;
 
-    CORD_LOG("[CordApp] Launching the PacketCord Tunnel App!\n");
+    CORD_LOG("[CordApp] Launching the PacketCord Pseudo Tunnel App!\n");
 
     signal(SIGINT, cord_app_sigint_callback);
 
