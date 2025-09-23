@@ -44,7 +44,7 @@ int main()
     for (uint16_t n = 0; n < MTU_SIZE; n++) buffer[n] = 0x00;
 
     // Calculate payload and packet sizes
-    const int inner_payload_len = strlen(PAYLOAD);
+    const int inner_payload_len = PAYLOAD_LEN;
     const int inner_total_len = sizeof(cord_ipv4_hdr_t) + sizeof(cord_udp_hdr_t) + inner_payload_len;
     const int outer_payload_len = inner_total_len;
     const int outer_total_len = sizeof(cord_ipv4_hdr_t) + sizeof(cord_udp_hdr_t) + outer_payload_len;
@@ -69,7 +69,7 @@ int main()
     inner_ip->tot_len = cord_htons(inner_total_len);
     inner_ip->id = cord_htons(123);
     inner_ip->frag_off = 0;
-    inner_ip->ttl = 5;
+    inner_ip->ttl = 32;
     inner_ip->protocol = CORD_IPPROTO_UDP;
     inner_ip->saddr.addr = inet_addr(INNER_SOURCE_IP);
     inner_ip->daddr.addr = inet_addr(INNER_DEST_IP);
@@ -90,7 +90,7 @@ int main()
     outer_ip->tot_len = cord_htons(outer_total_len);
     outer_ip->id = cord_htons(321);
     outer_ip->frag_off = 0;
-    outer_ip->ttl = 10;
+    outer_ip->ttl = 32;
     outer_ip->protocol = CORD_IPPROTO_UDP;
     outer_ip->saddr.addr = inet_addr(OUTER_SOURCE_IP);
     outer_ip->daddr.addr = inet_addr(OUTER_DEST_IP);
