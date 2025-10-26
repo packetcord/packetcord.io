@@ -64,7 +64,7 @@ Network packet crafting and generation tools for testing and development.
 |-------------|--------|-------------|
 | `l3_tunnel` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | IPv4 tunnel implementation using L2/L3/L4 FlowPoints |
 | `l3_pseudo_tunnel` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | IPv4 pseudo-tunnel implementation with client and server part |
-| `l2_patch` | ![Implemented](https://img.shields.io/badge/Status-Planned-red) | Virtual ethernet link between VM/container interfaces |
+| `l2_patch` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | Virtual ethernet link between VM/container interfaces |
 
 ### 📋 Planned Applications
 
