@@ -64,13 +64,12 @@ Network packet crafting and generation tools for testing and development.
 |-------------|--------|-------------|
 | `l3_tunnel` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | IPv4 tunnel implementation using L2/L3/L4 FlowPoints |
 | `l3_pseudo_tunnel` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | IPv4 pseudo-tunnel implementation with client and server part |
+| `l2_patch` | ![Implemented](https://img.shields.io/badge/Status-Planned-red) | Virtual ethernet link between VM/container interfaces |
 
 ### 📋 Planned Applications
 
 | Application | Status | Description |
 |-------------|--------|-------------|
-| `l2_patch` | ![Planned](https://img.shields.io/badge/Status-Planned-red) | Virtual ethernet link between VM/container interfaces |
-| `l2_passthrough` | ![Planned](https://img.shields.io/badge/Status-Planned-red) | Layer 2 frame passthrough processing |
 | `l2_switch` | ![Planned](https://img.shields.io/badge/Status-Planned-red) | Software-based Ethernet switch |
 | `l3_router` | ![Planned](https://img.shields.io/badge/Status-Planned-red) | Software-based IP router |
 
