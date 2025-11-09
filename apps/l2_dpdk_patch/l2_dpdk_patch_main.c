@@ -47,7 +47,7 @@ int main(void)
 
     char *cord_eal_argv[] = {
         "l2_dpdk_patch_app",                // Program name (argv[0])
-        "-l", "0-1",                        // Logical cores to use (0-1)
+        "--lcores", "0-1",                  // Master logical cores to use (0-1)
         "--proc-type=auto",                 // Process type (auto-detect primary/secondary)
         "--no-pci",                         // Do not probe for physical or virtual PCIe devices
         "--vdev=net_af_xdp0,iface=veth1",   // Bind via AF_XDP PMD to veth1
