@@ -1,6 +1,7 @@
 #include <cord_flow/memory/cord_memory.h>
 #include <cord_flow/match/cord_match.h>
 #include <cord_flow/eal_initer/cord_eal_initer.h>
+#include <cord_flow/flow_point/cord_dpdk_flow_point.h>
 #include <cord_error.h>
 #include <cord_retval.h>
 #include <cord_type.h>
@@ -8,16 +9,19 @@
 #include <rte_errno.h>
 #include <rte_ethdev.h>
 
-#define RX_RING_SIZE 1024
-#define TX_RING_SIZE 1024
+#define RX_TX_RING_SIZE 1024
 
 #define NUM_MBUFS 8191
 #define MBUF_CACHE_SIZE 250
 #define BURST_SIZE 32
 
+#define VETH1_DPDK_PORT_ID 0
+#define VETH2_DPDK_PORT_ID 1
+
 static struct
 {
-    struct rte_mempool* cord_pktmbuf_mpool;
+    struct rte_mempool *cord_pktmbuf_mpool_common;
+    CordFlowPoint *l2_dpdk_a;
 } cord_app_context;
 
 static void cord_app_setup(void)
@@ -27,9 +31,8 @@ static void cord_app_setup(void)
 
 static void cord_app_cleanup(void)
 {
-    CORD_LOG("[CordApp] DPDK Packet Mbuf and Mempool cleanup.\n");
-    cord_pktmbuf_mpool_free(cord_app_context.cord_pktmbuf_mpool);
-
+    CORD_LOG("[CordApp] Destroying all objects!\n");
+    CORD_DESTROY_FLOW_POINT(cord_app_context.l2_dpdk_a);
     CORD_LOG("[CordApp] DPDK EAL cleanup.\n");
     cord_eal_cleanup();
 }
@@ -61,7 +64,8 @@ int main(void)
     uint16_t nb_ports = rte_eth_dev_count_avail();
     CORD_LOG("[CordApp] Total DPDK ports: %u\n", nb_ports);
 
-    cord_app_context.cord_pktmbuf_mpool = cord_pktmbuf_mpool_alloc("MBUF_POOL", NUM_MBUFS * nb_ports, MBUF_CACHE_SIZE);
+    cord_app_context.cord_pktmbuf_mpool_common = cord_pktmbuf_mpool_alloc("MBUF_POOL", NUM_MBUFS * nb_ports, MBUF_CACHE_SIZE);
+    cord_app_context.l2_dpdk_a = CORD_CREATE_DPDK_FLOW_POINT('A', VETH1_DPDK_PORT_ID, 1, RX_TX_RING_SIZE, 0x00, cord_app_context.cord_pktmbuf_mpool_common);
 
     while (1)
     {
