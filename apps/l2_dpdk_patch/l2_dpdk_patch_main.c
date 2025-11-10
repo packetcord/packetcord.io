@@ -9,6 +9,8 @@
 #include <rte_errno.h>
 #include <rte_ethdev.h>
 
+#define LCORE_MASK 0x00
+
 #define RX_TX_RING_SIZE 1024
 
 #define NUM_MBUFS 8191
@@ -20,7 +22,6 @@
 
 static struct
 {
-    struct rte_mempool *cord_pktmbuf_mpool_common;
     CordFlowPoint *l2_dpdk_a;
 } cord_app_context;
 
@@ -46,6 +47,12 @@ static void cord_app_sigint_callback(int sig)
 
 int main(void)
 {
+    cord_retval_t cord_retval;
+    struct rte_mempool *cord_pktmbuf_mpool_common;
+    struct rte_mbuf *cord_mbufs[BURST_SIZE];
+    size_t rx_packets = 0;
+    size_t tx_packets = 0;
+
     signal(SIGINT, cord_app_sigint_callback);
 
     char *cord_eal_argv[] = {
@@ -64,12 +71,24 @@ int main(void)
     uint16_t nb_ports = rte_eth_dev_count_avail();
     CORD_LOG("[CordApp] Total DPDK ports: %u\n", nb_ports);
 
-    cord_app_context.cord_pktmbuf_mpool_common = cord_pktmbuf_mpool_alloc("MBUF_POOL", NUM_MBUFS * nb_ports, MBUF_CACHE_SIZE);
-    cord_app_context.l2_dpdk_a = CORD_CREATE_DPDK_FLOW_POINT('A', VETH1_DPDK_PORT_ID, 1, RX_TX_RING_SIZE, 0x00, cord_app_context.cord_pktmbuf_mpool_common);
+    cord_pktmbuf_mpool_common = cord_pktmbuf_mpool_alloc("MBUF_POOL", NUM_MBUFS * nb_ports, MBUF_CACHE_SIZE);
+    cord_app_context.l2_dpdk_a = CORD_CREATE_DPDK_FLOW_POINT('A',                           // FlowPoint object ID
+                                                             VETH1_DPDK_PORT_ID,            // DPDK Port ID
+                                                             1,                             // Queue count
+                                                             RX_TX_RING_SIZE,               // Queue size
+                                                             LCORE_MASK,                    // Logic core (CPU) mask
+                                                             cord_pktmbuf_mpool_common);    // DPDK memory pool
 
+    uint16_t port;
     while (1)
     {
-
+        RTE_ETH_FOREACH_DEV(port)
+        {
+            CORD_LOG("[CordApp] Port: %u\n", port);
+            cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_dpdk_a, 0, cord_mbufs, BURST_SIZE, &rx_packets);
+            if (cord_retval != CORD_OK)
+                continue; // Raw socket receive error
+        }
     }
 
     cord_app_cleanup();
