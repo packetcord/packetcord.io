@@ -92,7 +92,7 @@ int main(void)
         {
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth->io_handle)
             {
-                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth, buffer, BUFFER_SIZE, &rx_bytes);
+                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth, 0, buffer, BUFFER_SIZE, &rx_bytes);
                 if (cord_retval != CORD_OK)
                     continue; // Raw socket receive error
 
@@ -130,7 +130,7 @@ int main(void)
                 {
                     uint16_t total_len = cord_get_ipv4_total_length_ntohs(ip);
 
-                    cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l4_udp, ip, total_len, &tx_bytes);
+                    cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l4_udp, 0, ip, total_len, &tx_bytes);
                     if (cord_retval != CORD_OK)
                     {
                         // Handle the error
@@ -140,7 +140,7 @@ int main(void)
 
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l4_udp->io_handle)
             {
-                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l4_udp, buffer, BUFFER_SIZE, &rx_bytes);
+                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l4_udp, 0, buffer, BUFFER_SIZE, &rx_bytes);
                 if (cord_retval != CORD_OK)
                     continue; // Raw socket receive error
 
@@ -156,7 +156,7 @@ int main(void)
 
                 CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(cord_app_context.l3_si, cord_get_ipv4_dst_addr_l3(ip_inner));
 
-                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l3_si, buffer, cord_get_ipv4_total_length_ntohs(ip_inner), &tx_bytes);
+                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l3_si, 0, buffer, cord_get_ipv4_total_length_ntohs(ip_inner), &tx_bytes);
                 if (cord_retval != CORD_OK)
                 {
                     // Handle the error

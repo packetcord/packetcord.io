@@ -81,7 +81,7 @@ int main(void)
             //
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_a->io_handle)
             {
-                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, buffer, BUFFER_SIZE, &rx_bytes);
+                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, 0, buffer, BUFFER_SIZE, &rx_bytes);
                 if (cord_retval != CORD_OK)
                     continue; // Raw socket receive error
 
@@ -91,7 +91,7 @@ int main(void)
                 if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUD(cord_app_context.l2_eth_a) != CORD_OK)
                     continue; // Ensure this is not an outgoing packet
 
-                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, buffer, rx_bytes, &tx_bytes);
+                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, 0, buffer, rx_bytes, &tx_bytes);
                 if (cord_retval != CORD_OK)
                 {
                     // Handle the error
@@ -103,7 +103,7 @@ int main(void)
             //
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_b->io_handle)
             {
-                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, buffer, BUFFER_SIZE, &rx_bytes);
+                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, 0, buffer, BUFFER_SIZE, &rx_bytes);
                 if (cord_retval != CORD_OK)
                     continue; // Raw socket receive error
 
@@ -113,7 +113,7 @@ int main(void)
                 if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUD(cord_app_context.l2_eth_b) != CORD_OK)
                     continue; // Ensure this is not an outgoing packet
 
-                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, buffer, rx_bytes, &tx_bytes);
+                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, 0, buffer, rx_bytes, &tx_bytes);
                 if (cord_retval != CORD_OK)
                 {
                     // Handle the error
