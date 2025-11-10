@@ -57,7 +57,7 @@ int main(void)
 
     char *cord_eal_argv[] = {
         "l2_dpdk_patch_app",                // Program name (argv[0])
-        "--lcores", "0-1",                  // Master logical cores to use (0-1)
+        "--lcores", "2-3",                  // Master logical cores to use (2-3)
         "--proc-type=auto",                 // Process type (auto-detect primary/secondary)
         "--no-pci",                         // Do not probe for physical or virtual PCIe devices
         "--vdev=net_af_xdp0,iface=veth1",   // Bind via AF_XDP PMD to veth1
@@ -84,10 +84,24 @@ int main(void)
     {
         RTE_ETH_FOREACH_DEV(port)
         {
-            CORD_LOG("[CordApp] Port: %u\n", port);
+            // Log
+            // CORD_LOG("[CordApp] Port: %u\n", port);
+
+            // RX
             cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_dpdk_a, 0, cord_mbufs, BURST_SIZE, &rx_packets);
             if (cord_retval != CORD_OK)
                 continue; // Raw socket receive error
+
+            if (unlikely(rx_packets == 0))
+            continue;
+
+            if (rx_packets > 0)
+            {
+                // TX
+                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_dpdk_a, 0, cord_mbufs, rx_packets, &tx_packets);
+                if (cord_retval != CORD_OK)
+                    continue; // Raw socket receive error
+            }
         }
     }
 
