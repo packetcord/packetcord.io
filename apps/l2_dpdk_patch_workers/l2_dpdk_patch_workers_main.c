@@ -146,13 +146,13 @@ int main(void)
                                                              VETH1_DPDK_PORT_ID,            // DPDK Port ID
                                                              1,                             // Queue count
                                                              RX_TX_RING_SIZE,               // Queue size
-                                                             cord_pktmbuf_mpool_a);         // DPDK memory pool
+                                                             &cord_pktmbuf_mpool_a);        // DPDK memory pool
 
     cord_app_context.l2_dpdk_b = CORD_CREATE_DPDK_FLOW_POINT('B',                           // FlowPoint object ID
                                                              VETH2_DPDK_PORT_ID,            // DPDK Port ID
                                                              1,                             // Queue count
                                                              RX_TX_RING_SIZE,               // Queue size
-                                                             cord_pktmbuf_mpool_b);         // DPDK memory pool
+                                                             &cord_pktmbuf_mpool_b);        // DPDK memory pool
 
 
     rte_eal_remote_launch(rx_a_tx_b, NULL, LCORE_2_ID);
