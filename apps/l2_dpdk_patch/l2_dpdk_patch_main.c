@@ -23,6 +23,7 @@
 static struct
 {
     CordFlowPoint *l2_dpdk_a;
+    CordFlowPoint *l2_dpdk_b;
 } cord_app_context;
 
 static void cord_app_setup(void)
@@ -34,6 +35,7 @@ static void cord_app_cleanup(void)
 {
     CORD_LOG("[CordApp] Destroying all objects!\n");
     CORD_DESTROY_FLOW_POINT(cord_app_context.l2_dpdk_a);
+    CORD_DESTROY_FLOW_POINT(cord_app_context.l2_dpdk_b);
     CORD_LOG("[CordApp] DPDK EAL cleanup.\n");
     cord_eal_cleanup();
 }
@@ -72,8 +74,16 @@ int main(void)
     CORD_LOG("[CordApp] Total DPDK ports: %u\n", nb_ports);
 
     cord_pktmbuf_mpool_common = cord_pktmbuf_mpool_alloc("MBUF_POOL", NUM_MBUFS * nb_ports, MBUF_CACHE_SIZE);
+
     cord_app_context.l2_dpdk_a = CORD_CREATE_DPDK_FLOW_POINT('A',                           // FlowPoint object ID
                                                              VETH1_DPDK_PORT_ID,            // DPDK Port ID
+                                                             1,                             // Queue count
+                                                             RX_TX_RING_SIZE,               // Queue size
+                                                             LCORE_MASK,                    // Logic core (CPU) mask
+                                                             cord_pktmbuf_mpool_common);    // DPDK memory pool
+
+    cord_app_context.l2_dpdk_b = CORD_CREATE_DPDK_FLOW_POINT('B',                           // FlowPoint object ID
+                                                             VETH2_DPDK_PORT_ID,            // DPDK Port ID
                                                              1,                             // Queue count
                                                              RX_TX_RING_SIZE,               // Queue size
                                                              LCORE_MASK,                    // Logic core (CPU) mask
@@ -84,23 +94,44 @@ int main(void)
     {
         RTE_ETH_FOREACH_DEV(port)
         {
-            // Log
-            // CORD_LOG("[CordApp] Port: %u\n", port);
-
-            // RX
-            cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_dpdk_a, 0, cord_mbufs, BURST_SIZE, &rx_packets);
-            if (cord_retval != CORD_OK)
-                continue; // Raw socket receive error
-
-            if (unlikely(rx_packets == 0))
-            continue;
-
-            if (rx_packets > 0)
+            // A ---> B
+            if (port == VETH1_DPDK_PORT_ID)
             {
-                // TX
-                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_dpdk_a, 0, cord_mbufs, rx_packets, &tx_packets);
+                // RX
+                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_dpdk_a, 0, cord_mbufs, BURST_SIZE, &rx_packets);
                 if (cord_retval != CORD_OK)
                     continue; // Raw socket receive error
+
+                if (unlikely(rx_packets == 0))
+                continue;
+
+                if (rx_packets > 0)
+                {
+                    // TX
+                    cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_dpdk_b, 0, cord_mbufs, rx_packets, &tx_packets);
+                    if (cord_retval != CORD_OK)
+                        continue; // Raw socket receive error
+                }
+            }
+
+            // B ---> A
+            if (port == VETH2_DPDK_PORT_ID)
+            {
+                // RX
+                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_dpdk_b, 0, cord_mbufs, BURST_SIZE, &rx_packets);
+                if (cord_retval != CORD_OK)
+                    continue; // Raw socket receive error
+
+                if (unlikely(rx_packets == 0))
+                continue;
+
+                if (rx_packets > 0)
+                {
+                    // TX
+                    cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_dpdk_a, 0, cord_mbufs, rx_packets, &tx_packets);
+                    if (cord_retval != CORD_OK)
+                        continue; // Raw socket receive error
+                }
             }
         }
     }
