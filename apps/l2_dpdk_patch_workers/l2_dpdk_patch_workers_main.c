@@ -18,10 +18,14 @@
 #define VETH1_DPDK_PORT_ID 0
 #define VETH2_DPDK_PORT_ID 1
 
+#define LCORE_2_ID 2
+#define LCORE_3_ID 3
+
 static struct
 {
     CordFlowPoint *l2_dpdk_a;
     CordFlowPoint *l2_dpdk_b;
+    struct rte_mbuf *cord_mbufs[BURST_SIZE];
 } cord_app_context;
 
 static void cord_app_setup(void)
@@ -45,19 +49,77 @@ static void cord_app_sigint_callback(int sig)
     CORD_ASYNC_SAFE_EXIT(CORD_OK);
 }
 
-int main(void)
+// A ---> B
+static int rx_a_tx_b(void *args)
 {
+    (void)args;
+
     cord_retval_t cord_retval;
-    struct rte_mempool *cord_pktmbuf_mpool_common;
-    struct rte_mbuf *cord_mbufs[BURST_SIZE];
     size_t rx_packets = 0;
     size_t tx_packets = 0;
+
+    while (1)
+    {
+        // RX
+        cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_dpdk_a, 0, cord_app_context.cord_mbufs, BURST_SIZE, &rx_packets);
+        if (cord_retval != CORD_OK)
+            continue; // Raw socket receive error
+
+        if (unlikely(rx_packets == 0))
+            continue;
+
+        if (rx_packets > 0)
+        {
+            // TX
+            cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_dpdk_b, 0, cord_app_context.cord_mbufs, rx_packets, &tx_packets);
+            if (cord_retval != CORD_OK)
+                continue; // Raw socket receive error
+        }
+    }
+
+    return CORD_OK;
+}
+
+// B ---> A
+static int rx_b_tx_a(void *args)
+{
+    (void)args;
+
+    cord_retval_t cord_retval;
+    size_t rx_packets = 0;
+    size_t tx_packets = 0;
+
+    while (1)
+    {
+        // RX
+        cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_dpdk_b, 0, cord_app_context.cord_mbufs, BURST_SIZE, &rx_packets);
+        if (cord_retval != CORD_OK)
+            continue; // Raw socket receive error
+
+        if (unlikely(rx_packets == 0))
+            continue;
+
+        if (rx_packets > 0)
+        {
+            // TX
+            cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_dpdk_a, 0, cord_app_context.cord_mbufs, rx_packets, &tx_packets);
+            if (cord_retval != CORD_OK)
+                continue; // Raw socket receive error
+        }
+    }
+
+    return CORD_OK;
+}
+
+int main(void)
+{
+    struct rte_mempool *cord_pktmbuf_mpool_common;
 
     signal(SIGINT, cord_app_sigint_callback);
 
     char *cord_eal_argv[] = {
         "l2_dpdk_patch_app",                // Program name (argv[0])
-        "--lcores", "2-3",                  // Master logical cores to use (2-3)
+        "--lcores", "0-1",                  // Master logical cores to use (0-1)
         "--proc-type=auto",                 // Process type (auto-detect primary/secondary)
         "--no-pci",                         // Do not probe for physical or virtual PCIe devices
         "--vdev=net_af_xdp0,iface=veth1",   // Bind via AF_XDP PMD to veth1
@@ -85,52 +147,9 @@ int main(void)
                                                              RX_TX_RING_SIZE,               // Queue size
                                                              cord_pktmbuf_mpool_common);    // DPDK memory pool
 
-    uint16_t port;
-    while (1)
-    {
-        RTE_ETH_FOREACH_DEV(port)
-        {
-            // A ---> B
-            if (port == VETH1_DPDK_PORT_ID)
-            {
-                // RX
-                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_dpdk_a, 0, cord_mbufs, BURST_SIZE, &rx_packets);
-                if (cord_retval != CORD_OK)
-                    continue; // Raw socket receive error
 
-                if (unlikely(rx_packets == 0))
-                    continue;
-
-                if (rx_packets > 0)
-                {
-                    // TX
-                    cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_dpdk_b, 0, cord_mbufs, rx_packets, &tx_packets);
-                    if (cord_retval != CORD_OK)
-                        continue; // Raw socket receive error
-                }
-            }
-
-            // B ---> A
-            if (port == VETH2_DPDK_PORT_ID)
-            {
-                // RX
-                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_dpdk_b, 0, cord_mbufs, BURST_SIZE, &rx_packets);
-                if (cord_retval != CORD_OK)
-                    continue; // Raw socket receive error
-
-                if (unlikely(rx_packets == 0))
-                    continue;
-
-                if (rx_packets > 0)
-                {
-                    // TX
-                    cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_dpdk_a, 0, cord_mbufs, rx_packets, &tx_packets);
-                    if (cord_retval != CORD_OK)
-                        continue; // Raw socket receive error
-                }
-            }
-        }
-    }
+    rte_eal_remote_launch(rx_a_tx_b, NULL, LCORE_2_ID);
+    rte_eal_remote_launch(rx_b_tx_a, NULL, LCORE_3_ID);
 
     cord_app_cleanup();
 
