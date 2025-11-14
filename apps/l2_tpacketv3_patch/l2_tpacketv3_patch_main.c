@@ -82,40 +82,12 @@ int main(void)
         {
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_a->io_handle)
             {
-                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, 0, buffer, BUFFER_SIZE, &rx_bytes);
-                if (cord_retval != CORD_OK)
-                    continue;
 
-                if (rx_bytes < sizeof(cord_eth_hdr_t))
-                    continue;
-
-                if (CORD_L2_TPACKETV3_FLOW_POINT_ENSURE_INBOUND(cord_app_context.l2_eth_a) != CORD_OK)
-                    continue;
-
-                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, 0, buffer, rx_bytes, &tx_bytes);
-                if (cord_retval != CORD_OK)
-                {
-
-                }
             }
 
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_b->io_handle)
             {
-                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, 0, buffer, BUFFER_SIZE, &rx_bytes);
-                if (cord_retval != CORD_OK)
-                    continue;
 
-                if (rx_bytes < sizeof(cord_eth_hdr_t))
-                    continue;
-
-                if (CORD_L2_TPACKETV3_FLOW_POINT_ENSURE_INBOUND(cord_app_context.l2_eth_b) != CORD_OK)
-                    continue;
-
-                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, 0, buffer, rx_bytes, &tx_bytes);
-                if (cord_retval != CORD_OK)
-                {
-
-                }
             }
         }
     }
