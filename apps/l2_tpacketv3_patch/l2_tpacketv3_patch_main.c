@@ -6,19 +6,12 @@
 #include <signal.h>
 #include <errno.h>
 
-#define MTU_SIZE 1500
-#define ETHERNET_HEADER_SIZE 14
-#define DOT1Q_TAG_SIZE 4
-
-#define BUFFER_SIZE (MTU_SIZE + ETHERNET_HEADER_SIZE)
-
 #define ETH_IFACE_A_NAME "veth1"
 #define ETH_IFACE_B_NAME "veth2"
 
 #define TPACKET_V3_BLOCK_SIZE (1 << 18)
 #define TPACKET_V3_FRAME_SIZE 2048
 #define TPACKET_V3_BLOCK_NUM  256
-#define BURST_SIZE (TPACKET_V3_BLOCK_SIZE / TPACKET_V3_FRAME_SIZE)
 
 static struct
 {
@@ -92,20 +85,20 @@ int main(void)
             // A -> B
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_a->io_handle)
             {
-                CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, 0, &rx_ring_a, BURST_SIZE, &rx_packets);
+                CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, UNUSED_ARG, &rx_ring_a, UNUSED_ARG, &rx_packets);
                 if (rx_packets > 0)
                 {
-                    CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, 0, &rx_ring_a, rx_packets, &tx_packets);
+                    CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, UNUSED_ARG, &rx_ring_a, rx_packets, &tx_packets);
                 }
             }
 
             // B -> A
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_b->io_handle)
             {
-                CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, 0, &rx_ring_b, BURST_SIZE, &rx_packets);
+                CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, UNUSED_ARG, &rx_ring_b, UNUSED_ARG, &rx_packets);
                 if (rx_packets > 0)
                 {
-                    CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, 0, &rx_ring_b, rx_packets, &tx_packets);
+                    CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, UNUSED_ARG, &rx_ring_b, rx_packets, &tx_packets);
                 }
             }
         }

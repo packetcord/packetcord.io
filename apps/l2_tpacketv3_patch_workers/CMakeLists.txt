@@ -6,11 +6,15 @@ set(CMAKE_C_EXTENSIONS      ON   CACHE BOOL   "" FORCE)
 # apps/l2_tpacketv3_patch_workers/CMakeLists.txt
 add_executable(l2_tpacketv3_patch_workers_app l2_tpacketv3_patch_workers_main.c)
 
-# Link against cord-flow
+# Link against cord-flow and pthread
 target_link_libraries(l2_tpacketv3_patch_workers_app
     PRIVATE
         cord_flow
+        pthread
 )
+
+# Enable GNU extensions for CPU affinity macros
+target_compile_definitions(l2_tpacketv3_patch_workers_app PRIVATE _GNU_SOURCE)
 
 # Include paths for headers
 target_include_directories(l2_tpacketv3_patch_workers_app

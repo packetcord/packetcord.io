@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #include <cord_flow/event_handler/cord_linux_api_event_handler.h>
 #include <cord_flow/flow_point/cord_l2_tpacketv3_flow_point.h>
 #include <cord_flow/memory/cord_memory.h>
@@ -12,19 +11,12 @@
 #include <sys/poll.h>
 #include <linux/if_packet.h>
 
-#define MTU_SIZE 1500
-#define ETHERNET_HEADER_SIZE 14
-#define DOT1Q_TAG_SIZE 4
-
-#define BUFFER_SIZE (MTU_SIZE + ETHERNET_HEADER_SIZE)
-
 #define ETH_IFACE_A_NAME "veth1"
 #define ETH_IFACE_B_NAME "veth2"
 
 #define TPACKET_V3_BLOCK_SIZE (1 << 18)
 #define TPACKET_V3_FRAME_SIZE 2048
 #define TPACKET_V3_BLOCK_NUM  256
-#define BURST_SIZE (TPACKET_V3_BLOCK_SIZE / TPACKET_V3_FRAME_SIZE)
 
 #define CPU_CORE_A_TO_B 2
 #define CPU_CORE_B_TO_A 3
@@ -106,7 +98,7 @@ static void *rx_a_tx_b(void *args)
         }
 
         // RX - process ready blocks
-        cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, 0, &cord_app_context.rx_ring_a, BURST_SIZE, &rx_packets);
+        cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, UNUSED_ARG, &cord_app_context.rx_ring_a, UNUSED_ARG, &rx_packets);
         if (cord_retval != CORD_OK)
             continue;
 
@@ -114,7 +106,7 @@ static void *rx_a_tx_b(void *args)
             continue;
 
         // TX
-        cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, 0, &cord_app_context.rx_ring_a, rx_packets, &tx_packets);
+        cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, UNUSED_ARG, &cord_app_context.rx_ring_a, rx_packets, &tx_packets);
         (void)tx_packets;
     }
 
@@ -154,7 +146,7 @@ static void *rx_b_tx_a(void *args)
         }
 
         // RX - process ready blocks
-        cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, 0, &cord_app_context.rx_ring_b, BURST_SIZE, &rx_packets);
+        cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, UNUSED_ARG, &cord_app_context.rx_ring_b, UNUSED_ARG, &rx_packets);
         if (cord_retval != CORD_OK)
             continue;
 
@@ -162,7 +154,7 @@ static void *rx_b_tx_a(void *args)
             continue;
 
         // TX
-        cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, 0, &cord_app_context.rx_ring_b, rx_packets, &tx_packets);
+        cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, UNUSED_ARG, &cord_app_context.rx_ring_b, rx_packets, &tx_packets);
         (void)tx_packets;
     }
 
