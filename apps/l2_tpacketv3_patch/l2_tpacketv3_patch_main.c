@@ -47,16 +47,18 @@ static void cord_app_sigint_callback(int sig)
 int main(void)
 {
     cord_retval_t cord_retval;
-    CORD_BUFFER(buffer, BUFFER_SIZE);
-    size_t rx_bytes = 0;
-    size_t tx_bytes = 0;
+    struct cord_tpacketv3_ring *rx_ring_a;
+    struct cord_tpacketv3_ring *rx_ring_b;
 
     CORD_LOG("[CordApp] Launching the PacketCord TPACKET_V3 Patch App!\n");
 
     signal(SIGINT, cord_app_sigint_callback);
 
-    cord_app_context.l2_eth_a = CORD_CREATE_L2_TPACKETV3_FLOW_POINT('A', ETH_IFACE_A_NAME, TPACKET_V3_BLOCK_SIZE, TPACKET_V3_FRAME_SIZE, TPACKET_V3_BLOCK_NUM);
-    cord_app_context.l2_eth_b = CORD_CREATE_L2_TPACKETV3_FLOW_POINT('B', ETH_IFACE_B_NAME, TPACKET_V3_BLOCK_SIZE, TPACKET_V3_FRAME_SIZE, TPACKET_V3_BLOCK_NUM);
+    rx_ring_a = cord_tpacketv3_ring_alloc(TPACKET_V3_BLOCK_SIZE, TPACKET_V3_FRAME_SIZE, TPACKET_V3_BLOCK_NUM);
+    rx_ring_b = cord_tpacketv3_ring_alloc(TPACKET_V3_BLOCK_SIZE, TPACKET_V3_FRAME_SIZE, TPACKET_V3_BLOCK_NUM);
+
+    cord_app_context.l2_eth_a = CORD_CREATE_L2_TPACKETV3_FLOW_POINT('A', ETH_IFACE_A_NAME, &rx_ring_a);
+    cord_app_context.l2_eth_b = CORD_CREATE_L2_TPACKETV3_FLOW_POINT('B', ETH_IFACE_B_NAME, &rx_ring_b);
 
     cord_app_context.evh = CORD_CREATE_LINUX_API_EVENT_HANDLER('E', -1);
 
