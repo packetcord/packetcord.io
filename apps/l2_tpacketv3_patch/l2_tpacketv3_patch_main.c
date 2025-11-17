@@ -3,6 +3,8 @@
 #include <cord_flow/memory/cord_memory.h>
 #include <cord_flow/match/cord_match.h>
 #include <cord_error.h>
+#include <signal.h>
+#include <errno.h>
 
 #define MTU_SIZE 1500
 #define ETHERNET_HEADER_SIZE 14
@@ -16,6 +18,7 @@
 #define TPACKET_V3_BLOCK_SIZE (1 << 18)
 #define TPACKET_V3_FRAME_SIZE 2048
 #define TPACKET_V3_BLOCK_NUM  256
+#define BURST_SIZE (TPACKET_V3_BLOCK_SIZE / TPACKET_V3_FRAME_SIZE)
 
 static struct
 {
@@ -49,6 +52,8 @@ int main(void)
     cord_retval_t cord_retval;
     struct cord_tpacketv3_ring *rx_ring_a;
     struct cord_tpacketv3_ring *rx_ring_b;
+    ssize_t rx_packets = 0;
+    ssize_t tx_packets = 0;
 
     CORD_LOG("[CordApp] Launching the PacketCord TPACKET_V3 Patch App!\n");
 
@@ -64,6 +69,8 @@ int main(void)
 
     cord_retval = CORD_EVENT_HANDLER_REGISTER_FLOW_POINT(cord_app_context.evh, cord_app_context.l2_eth_a);
     cord_retval = CORD_EVENT_HANDLER_REGISTER_FLOW_POINT(cord_app_context.evh, cord_app_context.l2_eth_b);
+
+    (void)cord_retval;
 
     while (1)
     {
@@ -82,14 +89,28 @@ int main(void)
 
         for (uint8_t n = 0; n < nb_fds; n++)
         {
+            // A -> B
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_a->io_handle)
             {
-
+                CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, 0, &rx_ring_a, BURST_SIZE, &rx_packets);
+                CORD_LOG("[CordApp] A->B: RX %zd packets\n", rx_packets);
+                if (rx_packets > 0)
+                {
+                    CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, 0, &rx_ring_a, rx_packets, &tx_packets);
+                    CORD_LOG("[CordApp] A->B: TX %zd packets\n", tx_packets);
+                }
             }
 
+            // B -> A
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_b->io_handle)
             {
-
+                CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, 0, &rx_ring_b, BURST_SIZE, &rx_packets);
+                CORD_LOG("[CordApp] B->A: RX %zd packets\n", rx_packets);
+                if (rx_packets > 0)
+                {
+                    CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, 0, &rx_ring_b, rx_packets, &tx_packets);
+                    CORD_LOG("[CordApp] B->A: TX %zd packets\n", tx_packets);
+                }
             }
         }
     }
