@@ -10,6 +10,7 @@
 #include <sched.h>
 #include <stdbool.h>
 #include <sys/poll.h>
+#include <linux/if_packet.h>
 
 #define MTU_SIZE 1500
 #define ETHERNET_HEADER_SIZE 14
@@ -82,6 +83,7 @@ static void *rx_a_tx_b(void *args)
     ssize_t rx_packets = 0;
     ssize_t tx_packets = 0;
     struct pollfd pfd;
+    struct tpacket_block_desc *pbd;
 
     set_cpu_affinity(CPU_CORE_A_TO_B);
 
@@ -93,10 +95,17 @@ static void *rx_a_tx_b(void *args)
 
     while (!force_quit)
     {
-        if (poll(&pfd, 1, 1) <= 0)
-            continue;
+        // Check if block is ready FIRST (tight spin)
+        pbd = (struct tpacket_block_desc *)cord_app_context.rx_ring_a->iov_ring[cord_app_context.rx_ring_a->block_idx].iov_base;
 
-        // RX
+        if (!(pbd->hdr.bh1.block_status & TP_STATUS_USER))
+        {
+            // No block ready, poll with short timeout
+            poll(&pfd, 1, 1);
+            continue;
+        }
+
+        // RX - process ready blocks
         cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, 0, &cord_app_context.rx_ring_a, BURST_SIZE, &rx_packets);
         if (cord_retval != CORD_OK)
             continue;
@@ -122,6 +131,7 @@ static void *rx_b_tx_a(void *args)
     ssize_t rx_packets = 0;
     ssize_t tx_packets = 0;
     struct pollfd pfd;
+    struct tpacket_block_desc *pbd;
 
     set_cpu_affinity(CPU_CORE_B_TO_A);
 
@@ -133,10 +143,17 @@ static void *rx_b_tx_a(void *args)
 
     while (!force_quit)
     {
-        if (poll(&pfd, 1, 1) <= 0)
-            continue;
+        // Check if block is ready FIRST (tight spin)
+        pbd = (struct tpacket_block_desc *)cord_app_context.rx_ring_b->iov_ring[cord_app_context.rx_ring_b->block_idx].iov_base;
 
-        // RX
+        if (!(pbd->hdr.bh1.block_status & TP_STATUS_USER))
+        {
+            // No block ready, poll with short timeout
+            poll(&pfd, 1, 1);
+            continue;
+        }
+
+        // RX - process ready blocks
         cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, 0, &cord_app_context.rx_ring_b, BURST_SIZE, &rx_packets);
         if (cord_retval != CORD_OK)
             continue;
