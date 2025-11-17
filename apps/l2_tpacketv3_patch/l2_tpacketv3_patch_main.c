@@ -93,11 +93,9 @@ int main(void)
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_a->io_handle)
             {
                 CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, 0, &rx_ring_a, BURST_SIZE, &rx_packets);
-                CORD_LOG("[CordApp] A->B: RX %zd packets\n", rx_packets);
                 if (rx_packets > 0)
                 {
                     CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, 0, &rx_ring_a, rx_packets, &tx_packets);
-                    CORD_LOG("[CordApp] A->B: TX %zd packets\n", tx_packets);
                 }
             }
 
@@ -105,11 +103,9 @@ int main(void)
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_b->io_handle)
             {
                 CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, 0, &rx_ring_b, BURST_SIZE, &rx_packets);
-                CORD_LOG("[CordApp] B->A: RX %zd packets\n", rx_packets);
                 if (rx_packets > 0)
                 {
                     CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, 0, &rx_ring_b, rx_packets, &tx_packets);
-                    CORD_LOG("[CordApp] B->A: TX %zd packets\n", tx_packets);
                 }
             }
         }
