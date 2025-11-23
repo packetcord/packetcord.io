@@ -96,20 +96,6 @@ mkdir build && cd build
 cmake ..
 make -j$(nproc)
 ```
-
-### Building Individual Components
-```bash
-# Build CORD-FLOW
-cd modules/cord-flow
-mkdir build && cd build
-cmake .. && make -j$(nproc)
-
-# Build CORD-CRYPTO
-cd modules/cord-crypto
-mkdir build && cd build
-cmake .. && make -j$(nproc)
-```
-
 ---
 
 ## Use Cases
@@ -138,8 +124,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ---
 
 <div align="center">
-
-**Built with ❤️ by the PacketCord Team**
 
 [![GitHub Stars](https://img.shields.io/github/stars/packetcord/packetcord.io?style=social)](https://github.com/packetcord/packetcord.io)
 [![GitHub Forks](https://img.shields.io/github/forks/packetcord/packetcord.io?style=social)](https://github.com/packetcord/packetcord.io)
