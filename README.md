@@ -1,4 +1,4 @@
-# 🌐 PacketCord.io
+# PacketCord.io
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![C Standard](https://img.shields.io/badge/C-C23-blue.svg)](https://en.wikipedia.org/wiki/C23_%28C_standard_revision%29)
@@ -11,9 +11,9 @@ PacketCord.io is a comprehensive C-based framework designed for high-performance
 
 ---
 
-## 📦 Framework Components
+## Framework Components
 
-### 🌊 CORD-FLOW
+### CORD-FLOW
 ![In Development](https://img.shields.io/badge/Status-In_Development-orange)
 [![Repository](https://img.shields.io/badge/Repo-cord--flow-blue)](https://github.com/packetcord/cord-flow)
 
@@ -26,7 +26,7 @@ High-performance packet flow programming with receive-match-action-transmit logi
 - Protocol header parsing (L2-L7)
 - Memory management with huge page support
 
-### 🔐 CORD-CRYPTO
+### CORD-CRYPTO
 ![Limited Implementation](https://img.shields.io/badge/Status-Limited_Implementation-yellow)
 [![Repository](https://img.shields.io/badge/Repo-cord--crypto-blue)](https://github.com/packetcord/cord-crypto)
 
@@ -42,7 +42,7 @@ Cryptographic operations and security primitives for network applications.
 - AES cipher modes (CBC, CTR, ECB, GCM) ![Planned](https://img.shields.io/badge/Status-Planned-red)
 - ChaCha20 cipher ![Planned](https://img.shields.io/badge/Status-Planned-red)
 
-### 🔨 CORD-CRAFT
+### CORD-CRAFT
 ![Planned](https://img.shields.io/badge/Status-Planned-red)
 [![Repository](https://img.shields.io/badge/Repo-cord--craft-blue)](https://github.com/packetcord/cord-craft)
 
@@ -50,32 +50,38 @@ Network packet crafting and generation tools for testing and development.
 
 **Planned Features:**
 - Protocol-aware packet generation
-- Traffic pattern simulation
 - Network testing utilities
 - Integration with CORD-FLOW
 
 ---
 
-## 📱 Example Applications
+## Example Applications
 
-### ✅ Implemented Applications
+### Implemented Applications
 
 | Application | Status | Description |
 |-------------|--------|-------------|
-| `l3_tunnel` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | IPv4 tunnel implementation using L2/L3/L4 FlowPoints |
-| `l3_pseudo_tunnel` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | IPv4 pseudo-tunnel implementation with client and server part |
-| `l2_patch` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | Virtual ethernet link between VM/container interfaces |
+| `l3_tunnel` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | IPv4 tunnel implementation using L2/L3/L4 (UDP) FlowPoints |
+| `l3_pseudo_tunnel` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | IPv4 pseudo-tunnel implementation with client and server part (UDP) |
+| `l2_patch` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | Virtual Ethernet link (AF_PACKET)|
+| `l2_patch_workers` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | Multi-threaded Virtual Ethernet link (AF_PACKET)|
+| `l2_dpdk_patch` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | Virtual Ethernet link (DPDK)|
+| `l2_dpdk_patch_workers` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | Multi-threaded Virtual Ethernet link (DPDK)|
+| `l2_tpacketv3_patch` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | Virtual Ethernet link (TPACKETv3)|
+| `l2_tpacketv3_patch_workers` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | Multi-threaded Virtual Ethernet link (TPACKETv3)|
+| `l2_xdp_patch` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | Virtual Ethernet link (AF_XDP)|
+| `l2_xdp_patch_workers` | ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) | Multi-threaded Virtual Ethernet link (AF_XDP)|
 
-### 📋 Planned Applications
+### Planned Applications
 
 | Application | Status | Description |
 |-------------|--------|-------------|
 | `l2_switch` | ![Planned](https://img.shields.io/badge/Status-Planned-red) | Software-based Ethernet switch |
-| `l3_router` | ![Planned](https://img.shields.io/badge/Status-Planned-red) | Software-based IP router |
+| `l3_router` | ![Planned](https://img.shields.io/badge/Status-Planned-red) | Software-based IPv4 router |
 
 ---
 
-## 🛠️ Build Instructions
+## Build Instructions
 
 ### Prerequisites
 - **CMake** 3.16 or higher
@@ -104,92 +110,28 @@ mkdir build && cd build
 cmake .. && make -j$(nproc)
 ```
 
-### Building Example Applications
-```bash
-# Build l3_tunnel example
-cd apps/l3_tunnel
-mkdir build && cd build
-cmake .. && make -j$(nproc)
-```
-
 ---
 
-## 📁 Repository Structure
-
-```
-packetcord.io/
-├── CMakeLists.txt             # Main build configuration
-├── README.md                  # This file
-├── apps/                      # Example applications
-│   ├── l3_tunnel/             # IPv4 tunnel (implemented)
-│   ├── l3_pseudo_tunnel/      # IPv4 pseudo-tunnel (implemented)
-│   ├── l2_patch/              # Virtual ethernet patch (planned)
-│   ├── l2_passthrough/        # L2 passthrough (planned)
-│   ├── l2_switch/             # Software switch (planned)
-│   └── l3_router/             # Software router (planned)
-└── modules/                   # Framework components
-    ├── cord-flow/             # Packet flow programming
-    ├── cord-crypto/           # Cryptographic operations
-    │   └── cord-aes-cipher/   # AES cipher implementation
-    └── cord-craft/            # Packet crafting (planned)
-```
-
----
-
-## 🚀 Getting Started
-
-### Running the L3 Tunnel Example
-
-The `l3_tunnel` application demonstrates PacketCord.io capabilities by creating an IPv4 tunnel:
-
-```bash
-cd apps/l3_tunnel/build
-sudo ./l3_tunnel
-```
-
-This example showcases:
-- L2 raw socket packet capture
-- IPv4 header parsing and matching
-- L4 UDP tunneling
-- L3 stack injection
-- Event-driven packet processing
-
----
-
-## 🎯 Use Cases
+## Use Cases
 
 PacketCord.io is designed for building:
 
-- **Network Function Virtualization (NFV)** - Virtual network functions and service chaining
-- **Software-Defined Networking (SDN)** - Custom packet processing and forwarding
-- **Security Applications** - Deep packet inspection and traffic analysis
-- **Protocol Development** - Custom protocol implementation and testing
-- **Embedded Networking** - Resource-constrained network applications
-- **High-Performance Computing** - Zero-copy packet processing for HPC networks
+- **Network Function Virtualization (NFV)**
+- **Software-Defined Networking (SDN)**
+- **Security Applications**
+- **Protocol Development**
+- **Embedded Networking**
+- **High-Performance Computing**
 
 ---
 
-## 🤝 Contributing
-
-We welcome contributions to PacketCord.io! Please:
-
-1. 🍴 Fork the repository
-2. 🌟 Create a feature branch
-3. 🧪 Add tests for new functionality
-4. 📝 Update documentation
-5. 🔄 Submit a pull request
-
-For major changes, please open an issue first to discuss your proposed changes.
-
----
-
-## 📄 License
+## License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🏷️ Keywords
+## Keywords
 
 `networking` `packet-processing` `high-performance` `zero-copy` `embedded` `c` `nfv` `sdn` `cryptography` `framework`
 
