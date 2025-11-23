@@ -1,3 +1,5 @@
+#ifdef ENABLE_XDP_DATAPLANE
+
 #include <event_handler/cord_linux_api_event_handler.h>
 #include <flow_point/cord_xdp_flow_point.h>
 #include <memory/cord_memory.h>
@@ -113,3 +115,5 @@ int main(void)
 
     return CORD_OK;
 }
+
+#endif // ENABLE_XDP_DATAPLANE

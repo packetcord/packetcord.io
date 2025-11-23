@@ -1,3 +1,5 @@
+#ifdef ENABLE_DPDK_DATAPLANE
+
 #include <cord_flow/memory/cord_memory.h>
 #include <cord_flow/match/cord_match.h>
 #include <cord_flow/eal_initer/cord_eal_initer.h>
@@ -167,3 +169,5 @@ int main(void)
 
     return CORD_OK;
 }
+
+#endif // ENABLE_DPDK_DATAPLANE

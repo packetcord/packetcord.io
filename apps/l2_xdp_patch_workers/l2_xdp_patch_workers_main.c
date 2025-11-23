@@ -1,3 +1,5 @@
+#ifdef ENABLE_XDP_DATAPLANE
+
 #include <flow_point/cord_xdp_flow_point.h>
 #include <memory/cord_memory.h>
 #include <match/cord_match.h>
@@ -222,3 +224,5 @@ int main(void)
 
     return CORD_OK;
 }
+
+#endif // ENABLE_XDP_DATAPLANE
