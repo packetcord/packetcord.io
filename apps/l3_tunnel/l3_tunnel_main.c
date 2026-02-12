@@ -4,6 +4,7 @@
 #include <cord_flow/flow_point/cord_l4_udp_flow_point.h>
 #include <cord_flow/memory/cord_memory.h>
 #include <cord_flow/match/cord_match.h>
+#include <cord_flow/action/cord_action.h>
 #include <cord_error.h>
 
 #define MTU_SIZE 1420
@@ -99,18 +100,18 @@ int main(void)
                 if (rx_bytes < sizeof(cord_eth_hdr_t))
                     continue; // Packet too short to contain Ethernet header
 
-                cord_eth_hdr_t *eth = cord_get_eth_hdr(buffer);
-                if (!cord_match_eth_type(eth, CORD_ETH_P_IP))
+                cord_eth_hdr_t *eth = cord_header_eth(buffer);
+                if (cord_get_field_eth_type(eth) != CORD_ETH_P_IP)
                     continue; // Only handle IPv4 packets
 
                 if (rx_bytes < sizeof(cord_eth_hdr_t) + sizeof(cord_ipv4_hdr_t))
                     continue; // Too short for IP header
 
-                ip = cord_get_ipv4_hdr_from_eth(eth);
-                if (!cord_match_ipv4_version(ip))
+                ip = cord_header_ipv4_from_eth(eth);
+                if (cord_get_field_ipv4_version(ip) != 4)
                     continue; // Not IPv4
 
-                int iphdr_len = cord_get_ipv4_header_length(ip);
+                int iphdr_len = cord_get_field_ipv4_header_length(ip);
 
                 if (rx_bytes < sizeof(cord_eth_hdr_t) + iphdr_len)
                     continue; // IP header incomplete
@@ -121,14 +122,14 @@ int main(void)
                 if (rx_bytes < sizeof(cord_eth_hdr_t) + iphdr_len + sizeof(cord_udp_hdr_t))
                     continue; // Too short for UDP header
 
-                udp = cord_get_udp_hdr_ipv4(ip);
+                udp = cord_header_udp_ipv4(ip);
 
-                uint32_t src_ip = cord_get_ipv4_src_addr_ntohl(ip);
-                uint32_t dst_ip = cord_get_ipv4_dst_addr_ntohl(ip);
+                uint32_t src_ip = cord_get_field_ipv4_src_addr_ntohl(ip);
+                uint32_t dst_ip = cord_get_field_ipv4_dst_addr_ntohl(ip);
 
-                if (cord_match_ipv4_dst_subnet(ip, cord_ntohl(prefix_ip.s_addr), cord_ntohl(netmask.s_addr)))
+                if (cord_compare_ipv4_dst_subnet(ip, cord_ntohl(prefix_ip.s_addr), cord_ntohl(netmask.s_addr)))
                 {
-                    uint16_t total_len = cord_get_ipv4_total_length_ntohs(ip);
+                    uint16_t total_len = cord_get_field_ipv4_total_length_ntohs(ip);
 
                     cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l4_udp, 0, ip, total_len, &tx_bytes);
                     if (cord_retval != CORD_OK)
@@ -144,19 +145,19 @@ int main(void)
                 if (cord_retval != CORD_OK)
                     continue; // Raw socket receive error
 
-                cord_ipv4_hdr_t *ip_inner = cord_get_ipv4_hdr_l3(buffer);
+                cord_ipv4_hdr_t *ip_inner = cord_header_ipv4(buffer);
 
-                if (rx_bytes != cord_get_ipv4_total_length_ntohs(ip_inner))
+                if (rx_bytes != cord_get_field_ipv4_total_length_ntohs(ip_inner))
                     continue; // Packet partially received
 
-                if (!cord_match_ipv4_version(ip_inner))
+                if (cord_get_field_ipv4_version(ip_inner) != 4)
                     continue;
 
-                int ip_inner_hdrlen = cord_get_ipv4_header_length(ip_inner);
+                int ip_inner_hdrlen = cord_get_field_ipv4_header_length(ip_inner);
 
-                CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(cord_app_context.l3_si, cord_get_ipv4_dst_addr_l3(ip_inner));
+                CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(cord_app_context.l3_si, cord_get_field_ipv4_dst_addr_l3(ip_inner));
 
-                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l3_si, 0, buffer, cord_get_ipv4_total_length_ntohs(ip_inner), &tx_bytes);
+                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l3_si, 0, buffer, cord_get_field_ipv4_total_length_ntohs(ip_inner), &tx_bytes);
                 if (cord_retval != CORD_OK)
                 {
                     // Handle the error

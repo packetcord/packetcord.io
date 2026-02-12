@@ -85,19 +85,19 @@ int main(void)
                 if (cord_retval != CORD_OK)
                     continue; // Raw socket receive error
 
-                cord_ipv4_hdr_t *ip_inner = cord_get_ipv4_hdr_l3(buffer);
+                cord_ipv4_hdr_t *ip_inner = cord_header_ipv4(buffer);
 
-                if (rx_bytes != cord_get_ipv4_total_length_ntohs(ip_inner))
+                if (rx_bytes != cord_get_field_ipv4_total_length_ntohs(ip_inner))
                     continue; // Packet partially received
 
-                if (!cord_match_ipv4_version(ip_inner))
+                if (cord_get_field_ipv4_version(ip_inner) != 4)
                     continue;
 
-                int ip_inner_hdrlen = cord_get_ipv4_header_length(ip_inner);
+                int ip_inner_hdrlen = cord_get_field_ipv4_header_length(ip_inner);
 
-                CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(cord_app_context.l3_si, cord_get_ipv4_dst_addr_l3(ip_inner));
+                CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(cord_app_context.l3_si, cord_get_field_ipv4_dst_addr_l3(ip_inner));
 
-                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l3_si, 0, buffer, cord_get_ipv4_total_length_ntohs(ip_inner), &tx_bytes);
+                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l3_si, 0, buffer, cord_get_field_ipv4_total_length_ntohs(ip_inner), &tx_bytes);
                 if (cord_retval != CORD_OK)
                 {
                     // Handle the error
