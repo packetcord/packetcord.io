@@ -96,6 +96,17 @@ int main(void)
                 {
                     // Handle the error
                 }
+
+                cord_eth_hdr_t* eth_hdr = cord_header_eth(buffer);
+                CORD_LOG("DST MAC: ");
+                printf("%02X:%02X:%02X:%02X:%02X:%02X\t",
+                    eth_hdr->h_source.addr[0], eth_hdr->h_source.addr[1], eth_hdr->h_source.addr[2],
+                    eth_hdr->h_source.addr[3], eth_hdr->h_source.addr[4], eth_hdr->h_source.addr[5]);
+
+                CORD_LOG("DST MAC: ");
+                printf("%02X:%02X:%02X:%02X:%02X:%02X\n",
+                    eth_hdr->h_dest.addr[0], eth_hdr->h_dest.addr[1], eth_hdr->h_dest.addr[2],
+                    eth_hdr->h_dest.addr[3], eth_hdr->h_dest.addr[4], eth_hdr->h_dest.addr[5]);
             }
 
             //

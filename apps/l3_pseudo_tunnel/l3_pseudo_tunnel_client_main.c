@@ -1,3 +1,8 @@
+//
+// Important: This is a preliminary demo, so please excuse us for the style!
+//            To be re-written in a clean manner using CORF-CRAFT...
+//
+
 #include <cord_craft/injector/cord_l3_stack_injector.h>
 #include <cord_craft/protocols/cord_protocols.h>
 #include <cord_craft/cord_retval.h>
@@ -74,14 +79,14 @@ int main()
     inner_ip->saddr.addr = inet_addr(INNER_SOURCE_IP);
     inner_ip->daddr.addr = inet_addr(INNER_DEST_IP);
     inner_ip->check = 0;
-    inner_ip->check = cord_htons(cord_ipv4_checksum(inner_ip));
+    inner_ip->check = cord_htons(cord_calculate_ipv4_checksum(inner_ip));
 
     // Build inner UDP header using cord-craft structure
     inner_udp->source = cord_htons(INNER_SOURCE_PORT);
     inner_udp->dest = cord_htons(INNER_DEST_PORT);
     inner_udp->len = cord_htons(sizeof(cord_udp_hdr_t) + inner_payload_len);
     inner_udp->check = 0;
-    inner_udp->check = cord_htons(cord_udp_checksum_ipv4(inner_ip));
+    inner_udp->check = cord_htons(cord_calculate_udp_checksum_ipv4(inner_ip));
 
     // Build outer IP header using cord-craft structure
     outer_ip->version = 4;
@@ -95,20 +100,20 @@ int main()
     outer_ip->saddr.addr = inet_addr(OUTER_SOURCE_IP);
     outer_ip->daddr.addr = inet_addr(OUTER_DEST_IP);
     outer_ip->check = 0;
-    outer_ip->check = cord_htons(cord_ipv4_checksum(outer_ip));
+    outer_ip->check = cord_htons(cord_calculate_ipv4_checksum(outer_ip));
 
     // Build outer UDP header using cord-craft structure
     outer_udp->source = cord_htons(OUTER_SOURCE_PORT);
     outer_udp->dest = cord_htons(OUTER_DEST_PORT);
     outer_udp->len = cord_htons(sizeof(cord_udp_hdr_t) + outer_payload_len);
     outer_udp->check = 0;
-    outer_udp->check = cord_htons(cord_udp_checksum_ipv4(outer_ip));
+    outer_udp->check = cord_htons(cord_calculate_udp_checksum_ipv4(outer_ip));
 
-    cord_ipv4_hdr_t *outer_ip_hdr = cord_get_ipv4_hdr_l3(buffer);
-    CORD_L3_STACK_INJECTOR_SET_TARGET_IPV4(cord_app_context.l3_ci, cord_get_ipv4_dst_addr_l3(outer_ip_hdr));
+    cord_ipv4_hdr_t *outer_ip_hdr = cord_header_ipv4(buffer);
+    CORD_L3_STACK_INJECTOR_SET_TARGET_IPV4(cord_app_context.l3_ci, cord_get_field_ipv4_dst_addr(outer_ip_hdr));
 
     CORD_LOG("[CordApp] Transmitting the crafted pseudo-tunnel packet...\n");
-    cord_retval = CORD_INJECTOR_TX(cord_app_context.l3_ci, buffer, cord_get_ipv4_total_length_ntohs(outer_ip_hdr), &tx_bytes);
+    cord_retval = CORD_INJECTOR_TX(cord_app_context.l3_ci, buffer, cord_get_field_ipv4_total_length_ntohs(outer_ip_hdr), &tx_bytes);
     if (cord_retval != CORD_OK)
     {
         // Handle the error
