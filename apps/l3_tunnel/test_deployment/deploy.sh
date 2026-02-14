@@ -1,7 +1,7 @@
 #!/bin/bash
 
-TEP_A_APP_LOCATION='/home/vmetodiev/Projects/packetcord.io/build/apps/l3_tunnel/l3_tunnel_tep_a_app'
-TEB_B_APP_LOCATION='/home/vmetodiev/Projects/packetcord.io/build/apps/l3_tunnel/l3_tunnel_tep_b_app'
+TEP_A_APP_LOCATION='../../../build/apps/l3_tunnel/l3_tunnel_tep_a_app'
+TEB_B_APP_LOCATION='../../../build/apps/l3_tunnel/l3_tunnel_tep_b_app'
 
 # Check if TEP_A_APP_LOCATION is empty
 if [[ -z "$TEP_A_APP_LOCATION" ]]; then
