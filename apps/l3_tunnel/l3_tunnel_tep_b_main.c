@@ -13,8 +13,16 @@
 
 #define BUFFER_SIZE (MTU_SIZE + ETHERNET_HEADER_SIZE)
 
-#define MATCH_IP_TO_TUNNEL  "11.11.11.100"
-#define MATCH_NETMASK       "255.255.255.255"
+#define MATCH_IP_TO_TUNNEL  "11.11.11.0"
+#define MATCH_NETMASK       "255.255.255.0"
+
+#define TEP_SOURCE_IP       "198.51.200.1"
+#define TEP_SOURCE_PORT     (60000)
+
+#define TEP_DEST_IP         "198.51.100.1"
+#define TEP_DEST_PORT       (50000)
+
+#define ANCHOR_IFACE        "veth6"
 
 static struct
 {
@@ -61,13 +69,13 @@ int main(void)
     cord_ipv4_hdr_t *ip = NULL;
     cord_udp_hdr_t *udp = NULL;
 
-    CORD_LOG("[CordApp] Launching the PacketCord Tunnel App!\n");
+    CORD_LOG("[CordApp] Launching the PacketCord Tunnel - Side B!\n");
 
     signal(SIGINT, cord_app_sigint_callback);
 
-    cord_app_context.l2_eth = CORD_CREATE_L2_RAW_SOCKET_FLOW_POINT('A', "enp6s0");
+    cord_app_context.l2_eth = CORD_CREATE_L2_RAW_SOCKET_FLOW_POINT('A', ANCHOR_IFACE);
     cord_app_context.l3_si  = CORD_CREATE_L3_STACK_INJECT_FLOW_POINT('I');
-    cord_app_context.l4_udp = CORD_CREATE_L4_UDP_FLOW_POINT('B', inet_addr("192.168.100.5"), inet_addr("37.60.250.192"), 60000, 50000);
+    cord_app_context.l4_udp = CORD_CREATE_L4_UDP_FLOW_POINT('B', inet_addr(TEP_SOURCE_IP), inet_addr(TEP_DEST_IP), TEP_SOURCE_PORT, TEP_DEST_PORT);
 
     cord_app_context.evh = CORD_CREATE_LINUX_API_EVENT_HANDLER('E', -1);
 
@@ -101,7 +109,7 @@ int main(void)
                     continue; // Packet too short to contain Ethernet header
 
                 cord_eth_hdr_t *eth = cord_header_eth(buffer);
-                if (cord_get_field_eth_type(eth) != CORD_ETH_P_IP)
+                if (cord_get_field_eth_type_ntohs(eth) != CORD_ETH_P_IP)
                     continue; // Only handle IPv4 packets
 
                 if (rx_bytes < sizeof(cord_eth_hdr_t) + sizeof(cord_ipv4_hdr_t))
@@ -127,7 +135,7 @@ int main(void)
                 uint32_t src_ip = cord_get_field_ipv4_src_addr_ntohl(ip);
                 uint32_t dst_ip = cord_get_field_ipv4_dst_addr_ntohl(ip);
 
-                if (cord_compare_ipv4_dst_subnet(ip, cord_ntohl(prefix_ip.s_addr), cord_ntohl(netmask.s_addr)))
+                if (cord_compare_ipv4_dst_subnet_ntohl(ip, cord_ntohl(prefix_ip.s_addr), cord_ntohl(netmask.s_addr)))
                 {
                     uint16_t total_len = cord_get_field_ipv4_total_length_ntohs(ip);
 
