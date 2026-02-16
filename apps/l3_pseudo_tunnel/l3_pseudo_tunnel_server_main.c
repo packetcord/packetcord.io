@@ -4,6 +4,7 @@
 #include <cord_flow/flow_point/cord_l4_udp_flow_point.h>
 #include <cord_flow/memory/cord_memory.h>
 #include <cord_flow/match/cord_match.h>
+#include <cord_flow/action/cord_action.h>
 #include <cord_error.h>
 
 #define MTU_SIZE 1420
@@ -11,6 +12,12 @@
 #define DOT1Q_TAG_SIZE 4
 
 #define BUFFER_SIZE (MTU_SIZE + ETHERNET_HEADER_SIZE)
+
+#define TEP_SOURCE_IP       "198.51.100.1"
+#define TEP_SOURCE_PORT     50000
+
+#define TEP_DEST_IP         "198.51.200.1"
+#define TEP_DEST_PORT       60000
 
 static struct
 {
@@ -37,7 +44,7 @@ static void cord_app_cleanup(void)
 static void cord_app_sigint_callback(int sig)
 {
     cord_app_cleanup();
-    CORD_LOG("[CordApp] Terminating the PacketCord Tunnel App!\n");
+    CORD_LOG("[CordApp] Terminating the PacketCord Pseudo Tunnel App!\n");
     CORD_ASYNC_SAFE_EXIT(CORD_OK);
 }
 
@@ -51,12 +58,12 @@ int main(void)
     cord_ipv4_hdr_t *ip = NULL;
     cord_udp_hdr_t *udp = NULL;
 
-    CORD_LOG("[CordApp] Launching the PacketCord Pseudo Tunnel App!\n");
+    CORD_LOG("[CordApp] Launching the PacketCord Pseudo Tunnel!\n");
 
     signal(SIGINT, cord_app_sigint_callback);
 
     cord_app_context.l3_si  = CORD_CREATE_L3_STACK_INJECT_FLOW_POINT('I');
-    cord_app_context.l4_udp = CORD_CREATE_L4_UDP_FLOW_POINT('A', inet_addr("38.242.203.214"), inet_addr("78.83.207.86"), 50000, 60000);
+    cord_app_context.l4_udp = CORD_CREATE_L4_UDP_FLOW_POINT('B', inet_addr(TEP_SOURCE_IP), inet_addr(TEP_DEST_IP), TEP_SOURCE_PORT, TEP_DEST_PORT);
 
     cord_app_context.evh = CORD_CREATE_LINUX_API_EVENT_HANDLER('E', -1);
 
@@ -66,11 +73,11 @@ int main(void)
     {
         int nb_fds = CORD_EVENT_HANDLER_WAIT(cord_app_context.evh);
 
-        if (nb_fds == -1)
+        if (nb_fds == -1) 
         {
             if (errno == EINTR)
                 continue;
-            else
+            else 
             {
                 CORD_ERROR("[CordApp] Error: CORD_EVENT_HANDLER_WAIT()");
                 CORD_EXIT(CORD_ERR);

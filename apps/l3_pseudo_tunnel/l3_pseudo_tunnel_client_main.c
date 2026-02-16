@@ -9,12 +9,12 @@
 
 #define MTU_SIZE            1420
 
-#define OUTER_SOURCE_IP     "192.168.100.3"
-#define OUTER_DEST_IP       "38.242.203.214"
+#define OUTER_SOURCE_IP     "192.168.111.100"
+#define OUTER_DEST_IP       "198.51.100.1"
 #define OUTER_SOURCE_PORT   60000
 #define OUTER_DEST_PORT     50000
 
-#define INNER_SOURCE_IP     "192.168.100.3"
+#define INNER_SOURCE_IP     "192.168.111.100"
 #define INNER_DEST_IP       "11.11.11.100"
 #define INNER_SOURCE_PORT   1234
 #define INNER_DEST_PORT     8765
