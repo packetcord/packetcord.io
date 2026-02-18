@@ -11,6 +11,21 @@ Build efficient packet processing logic, custom protocols and network applicatio
 
 ---
 
+## Use Cases
+
+PacketCord.io is designed for building:
+
+- **Network functions virtualization (NFV)**
+- **Software-defined networking (SDN)**
+- **Secure communications**
+- **Security and monitoring systems - IPS, IDS, SIEM**
+- **Protocol development**
+- **Tools for NAT traversal and peer-to-peer networking**
+- **Tunnels and VPNs**
+- **Embedded networking**
+- **Network processing and forwarding logic**
+---
+
 ## Framework Components
 
 ### CORD-FLOW
@@ -96,20 +111,6 @@ mkdir build && cd build
 cmake ..
 make -j$(nproc)
 ```
----
-
-## Use Cases
-
-PacketCord.io is designed for building:
-
-- **Network Function Virtualization (NFV)**
-- **Software-Defined Networking (SDN)**
-- **Secure communications**
-- **Security and monitoring systems - IPS, IDS, SIEM**
-- **Protocol development**
-- **Embedded networking**
-- **Network processing and forwarding logic**
-- **Tunnels and VPNs**
 ---
 
 ## License
