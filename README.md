@@ -5,9 +5,7 @@
 [![Build System](https://img.shields.io/badge/Build-CMake-brightgreen.svg)](https://cmake.org/)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Embedded-lightgrey.svg)](https://github.com/packetcord/packetcord.io)
 
-**An Alternative Network Programming Framework**
-
-Build efficient packet processing logic, custom protocols and network applications.
+Build efficient packet processing logic, custom protocols, packet crafting and network applications.
 
 ---
 
