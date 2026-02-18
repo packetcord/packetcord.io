@@ -119,12 +119,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-## Keywords
-
-`networking` `packet-processing` `high-performance` `zero-copy` `embedded` `c` `nfv` `sdn` `cryptography` `framework`
-
----
-
 <div align="center">
 
 [![GitHub Stars](https://img.shields.io/github/stars/packetcord/packetcord.io?style=social)](https://github.com/packetcord/packetcord.io)
