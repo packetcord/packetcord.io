@@ -1,7 +1,10 @@
 #!/bin/bash
 
-TEP_APP_LOCATION='../../../build/apps/l3_pseudo_tunnel/l3_pseudo_tunnel_tep_app'
-CLIENT_APP_LOCATION='../../../build/apps/l3_pseudo_tunnel/l3_pseudo_tunnel_client_app'
+TEP_APP_NAME='l3_pseudo_tunnel_tep_app'
+CLIENT_APP_NAME='l3_pseudo_tunnel_client_app'
+
+TEP_APP_LOCATION='../../../build/apps/l3_pseudo_tunnel/'$TEP_APP_NAME
+CLIENT_APP_LOCATION='../../../build/apps/l3_pseudo_tunnel/'$CLIENT_APP_NAME
 
 # Check if TEP_APP_LOCATION is empty
 if [[ -z "$TEP_APP_LOCATION" ]]; then
@@ -115,12 +118,12 @@ sudo ip netns exec node_b ethtool --offload veth7 rx off tx off 2>/dev/null || t
 # Copy Network Apps into containers
 #
 # Copy Network App for tep
-docker cp '/home/vmetodiev/Projects/packetcord.io/build/apps/l3_pseudo_tunnel/l3_pseudo_tunnel_server' tep:/root/l3_pseudo_tunnel_server
-docker exec tep chmod +x /root/l3_pseudo_tunnel_server
+docker cp $TEP_APP_LOCATION tep:/root/$TEP_APP_NAME
+docker exec tep chmod +x /root/$TEP_APP_NAME
 
 # Copy Network App for node_b
-docker cp '/home/vmetodiev/Projects/packetcord.io/build/apps/l3_pseudo_tunnel/l3_pseudo_tunnel_client' node_b:/root/l3_pseudo_tunnel_client
-docker exec node_b chmod +x /root/l3_pseudo_tunnel_client
+docker cp $CLIENT_APP_LOCATION node_b:/root/$CLIENT_APP_NAME
+docker exec node_b chmod +x /root/$CLIENT_APP_NAME
 
 
 #
