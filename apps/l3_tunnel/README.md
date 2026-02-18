@@ -46,7 +46,7 @@ cd /root
 ```
 
 ### Result
-Open the shell of Node A and Node B. Try to ping each other (11.11.11.100 and 192.168.111.100).
+Open the shells of Node A and Node B. Try to ping each other (11.11.11.100 and 192.168.111.100).
 
 ```bash
 docker exec -it node_b /bin/sh
@@ -62,7 +62,7 @@ PING 11.11.11.100 (11.11.11.100): 56 data bytes
 64 bytes from 11.11.11.100: seq=1 ttl=64 time=0.117 ms
 ```
 
-We can also run iperf3 test - let's make the Node A the server Node B the client.
+Let's also run iperf3 between Node A (server) and Node B (client):
 
 #### On Node A
 ```bash
