@@ -15,15 +15,15 @@ Build efficient packet processing logic, custom protocols and network applicatio
 
 PacketCord.io is designed for building:
 
-- **Network functions virtualization (NFV)**
-- **Software-defined networking (SDN)**
-- **Secure communications**
-- **Security and monitoring systems - IPS, IDS, SIEM**
-- **Protocol development**
-- **Tools for NAT traversal and peer-to-peer networking**
-- **Tunnels and VPNs**
-- **Embedded networking**
-- **Network processing and forwarding logic**
+- Network functions virtualization (NFV)
+- Software-defined networking (SDN)
+- Secure communications
+- Security and monitoring systems - IPS, IDS, SIEM
+- Protocol development
+- Tools for NAT traversal and peer-to-peer networking
+- Tunnels and VPNs
+- Embedded networking
+- Network processing and forwarding logic
 ---
 
 ## Framework Components
