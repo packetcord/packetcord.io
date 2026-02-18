@@ -16,7 +16,7 @@ cmake .. --fresh
 make
 ```
 
-### Start the test test deployment
+### Start the test deployment
 
 ```bash
 cd ..
@@ -76,7 +76,7 @@ Connection received on 192.168.111.100 1234
 PacketCord.io Tunneled Hello!!!
 ```
 
-The "PacketCord.io Tunneled Hello!!!" string has been sent Successfully over the UDP pseudo tunnel.
+The *PacketCord.io Tunneled Hello!!!* string has been successfully delivered over the UDP pseudo tunnel.
 
 ### Destroy the test test deployment
 Close all container shells. On the host, inside the l3_pseudo_tunnel/test_deployment directory, execute:
