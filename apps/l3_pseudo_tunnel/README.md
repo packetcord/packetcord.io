@@ -78,7 +78,7 @@ PacketCord.io Tunneled Hello!!!
 
 The *PacketCord.io Tunneled Hello!!!* string has been successfully delivered over the UDP pseudo tunnel.
 
-## Destroy the test test deployment
+## Destroy the test deployment
 Close all container shells. On the host, inside the l3_pseudo_tunnel/test_deployment directory, execute:
 ```bash
 sudo ./cleanup.sh

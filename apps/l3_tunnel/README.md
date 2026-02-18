@@ -29,7 +29,7 @@ sudo ./deploy.sh
 docker exec -it tep_a /bin/sh
 ```
 
-Inside the container, run the following netcat command and leave the shell open:
+Inside the container, run the following commands and leave the shell open:
 ```bash
 cd /root
 ./l3_tunnel_tep_a_app
@@ -94,7 +94,7 @@ Connecting to host 11.11.11.100, port 5201
 [  5]   0.00-10.00  sec  1.74 GBytes  1.49 Gbits/sec                  receiver
 ```
 
-## Destroy the test test deployment
+## Destroy the test deployment
 Close all container shells. On the host, inside the l3_tunnel/test_deployment directory, execute:
 ```bash
 sudo ./cleanup.sh
