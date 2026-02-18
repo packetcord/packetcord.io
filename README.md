@@ -5,9 +5,9 @@
 [![Build System](https://img.shields.io/badge/Build-CMake-brightgreen.svg)](https://cmake.org/)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Embedded-lightgrey.svg)](https://github.com/packetcord/packetcord.io)
 
-**High-Performance Network Programming Framework**
+**An Alternative Network Programming Framework**
 
-PacketCord.io is a comprehensive C-based framework designed for high-performance network programming, packet processing, and cryptographic operations. Built with modularity and performance in mind, it provides the building blocks for creating sophisticated network applications from embedded systems to high-end servers.
+Build efficient packet processing logic, custom protocols and network applications.
 
 ---
 
@@ -17,7 +17,7 @@ PacketCord.io is a comprehensive C-based framework designed for high-performance
 ![In Development](https://img.shields.io/badge/Status-In_Development-orange)
 [![Repository](https://img.shields.io/badge/Repo-cord--flow-blue)](https://github.com/packetcord/cord-flow)
 
-High-performance packet flow programming with receive-match-action-transmit logic.
+Packet processing library.
 
 **Key Features:**
 - Zero-copy packet processing
@@ -30,7 +30,7 @@ High-performance packet flow programming with receive-match-action-transmit logi
 ![Limited Implementation](https://img.shields.io/badge/Status-Limited_Implementation-yellow)
 [![Repository](https://img.shields.io/badge/Repo-cord--crypto-blue)](https://github.com/packetcord/cord-crypto)
 
-Cryptographic operations and security primitives for network applications.
+Encryption library.
 
 **Current Implementation:**
 - **[cord-aes-cipher](https://github.com/packetcord/cord-aes-cipher)** ![Implemented](https://img.shields.io/badge/Status-Implemented-brightgreen) - Hardware-accelerated AES-128/192/256
@@ -46,7 +46,7 @@ Cryptographic operations and security primitives for network applications.
 ![Planned](https://img.shields.io/badge/Status-Planned-red)
 [![Repository](https://img.shields.io/badge/Repo-cord--craft-blue)](https://github.com/packetcord/cord-craft)
 
-Network packet crafting and generation tools for testing and development.
+Packet crafting and injection library.
 
 **Planned Features:**
 - Protocol-aware packet generation
@@ -104,11 +104,12 @@ PacketCord.io is designed for building:
 
 - **Network Function Virtualization (NFV)**
 - **Software-Defined Networking (SDN)**
-- **Security Applications**
-- **Protocol Development**
-- **Embedded Networking**
-- **High-Performance Computing**
-
+- **Secure communications**
+- **Security and monitoring systems - IPS, IDS, SIEM**
+- **Protocol development**
+- **Embedded networking**
+- **Network processing and forwarding logic**
+- **Tunnels and VPNs**
 ---
 
 ## License
