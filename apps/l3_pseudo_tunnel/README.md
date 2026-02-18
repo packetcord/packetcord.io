@@ -1,6 +1,6 @@
 # L3 Pseudo Tunnel
 
-We demonstrate how to send a UDP-in-UDP crafted packet from Node-B to the internal network of Node A (the 11.11.11.0/24 subnet).
+A demonstration of a UDP-in-UDP crafted packet from Node-B to the internal network of Node A (the 11.11.11.0/24 subnet).
 
 ## Topology diagram
 ![description](images/pseudo_tunnel.png)
@@ -67,7 +67,7 @@ And the log on the console should be:
 [CordApp] Destroying all objects!
 ```
 
-## Result
+### Result
 Open the tab with with the Node A shell. You should see the following:
 ```console
 # nc -n -u -l -p 8765 -s 11.11.11.100 -v
@@ -78,7 +78,7 @@ PacketCord.io Tunneled Hello!!!
 
 The *PacketCord.io Tunneled Hello!!!* string has been successfully delivered over the UDP pseudo tunnel.
 
-### Destroy the test test deployment
+## Destroy the test test deployment
 Close all container shells. On the host, inside the l3_pseudo_tunnel/test_deployment directory, execute:
 ```bash
 sudo ./cleanup.sh
