@@ -1,7 +1,10 @@
 #!/bin/bash
 
-TEP_A_APP_LOCATION='../../../build/apps/l3_tunnel/l3_tunnel_tep_a_app'
-TEB_B_APP_LOCATION='../../../build/apps/l3_tunnel/l3_tunnel_tep_b_app'
+TEP_A_APP_NAME='l3_tunnel_tep_a_app'
+TEP_B_APP_NAME='l3_tunnel_tep_b_app'
+
+TEP_A_APP_LOCATION='../../../build/apps/l3_tunnel/'$TEP_A_APP_NAME
+TEB_B_APP_LOCATION='../../../build/apps/l3_tunnel/'$TEP_B_APP_NAME
 
 # Check if TEP_A_APP_LOCATION is empty
 if [[ -z "$TEP_A_APP_LOCATION" ]]; then
@@ -115,12 +118,12 @@ sudo ip netns exec node_b ethtool --offload veth7 rx off tx off 2>/dev/null || t
 # Copy Network Apps into containers
 #
 # Copy Network App for tep_a
-docker cp $TEP_A_APP_LOCATION tep_a:/root/l3_tunnel_tep_a_app
-docker exec tep_a chmod +x /root/l3_tunnel_tep_a_app
+docker cp $TEP_A_APP_LOCATION tep_a:/root/$TEP_A_APP_NAME
+docker exec tep_a chmod +x /root/$TEP_A_APP_NAME
 
 # Copy Network App for tep_b
-docker cp $TEB_B_APP_LOCATION tep_b:/root/l3_tunnel_tep_b_app
-docker exec tep_b chmod +x /root/l3_tunnel_tep_b_app
+docker cp $TEB_B_APP_LOCATION tep_b:/root/$TEP_B_APP_NAME
+docker exec tep_b chmod +x /root/$TEP_B_APP_NAME
 
 
 #
