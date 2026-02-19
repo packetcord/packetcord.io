@@ -11,17 +11,17 @@ Build efficient packet processing logic, custom protocols, packet crafting and n
 
 ## Use Cases
 
-PacketCord.io is designed for building:
+PacketCord.io could be used for the development of custom:
 
-- Network functions virtualization (NFV)
-- Software-defined networking (SDN)
-- Secure communications
-- Security and monitoring systems - IPS, IDS, SIEM
-- Protocol development
+- Network processing and forwarding logic
+- IPS, IDS or SIEM
+- Routing or management protocols
 - Tools for NAT traversal and peer-to-peer networking
 - Tunnels and VPNs
-- Embedded networking
-- Network processing and forwarding logic
+- Protocol bridges
+- IP over any SerDes
+- IP over custom radio or optical links
+
 ---
 
 ## Framework Components
