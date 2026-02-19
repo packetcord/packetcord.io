@@ -7,10 +7,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_STANDARD_REQUIRED ON   CACHE BOOL   "" FORCE)
 set(CMAKE_C_EXTENSIONS      OFF  CACHE BOOL   "" FORCE)
 
-# 
-# set(ENABLE_DPDK_DATAPLANE ON)
-#
-
 # 2. Auto‐update submodules to branch tips
 find_package(Git REQUIRED)
 execute_process(
