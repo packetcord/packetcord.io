@@ -1,4 +1,4 @@
-# L2 Virtual Patch (with XDP, single-thread)
+# L2 Virtual Patch (with XDP, multi-thread)
 
 A demonstation of a virtual patch between two nodes.
 
@@ -20,7 +20,7 @@ make
 
 ```bash
 cd ..
-cd apps/l2_xdp_patch/test_deployment/
+cd apps/l2_xdp_patch_workers/test_deployment/
 sudo ./deploy.sh
 ```
 
@@ -32,7 +32,7 @@ docker exec -it patch /bin/sh
 Inside the container, run the following commands and leave the shell open:
 ```bash
 cd /root
-./l2_xdp_patch_app
+./l2_xdp_patch_workers_app
 ```
 
 ### Result
@@ -67,22 +67,22 @@ iperf3 -c 172.16.111.1
 
 ```console
 Connecting to host 172.16.111.1, port 5201
-[  5] local 172.16.111.2 port 47300 connected to 172.16.111.1 port 5201
+[  5] local 172.16.111.2 port 34842 connected to 172.16.111.1 port 5201
 [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
-[  5]   0.00-1.00   sec   464 MBytes  3.89 Gbits/sec   31    646 KBytes       
-[  5]   1.00-2.00   sec   559 MBytes  4.69 Gbits/sec   12    665 KBytes       
-[  5]   2.00-3.00   sec   560 MBytes  4.70 Gbits/sec   17    675 KBytes       
-[  5]   3.00-4.00   sec   558 MBytes  4.68 Gbits/sec   12    706 KBytes       
-[  5]   4.00-5.00   sec   560 MBytes  4.70 Gbits/sec   21    512 KBytes       
-[  5]   5.00-6.00   sec   557 MBytes  4.68 Gbits/sec   17    513 KBytes       
-[  5]   6.00-7.00   sec   558 MBytes  4.68 Gbits/sec   22    523 KBytes       
-[  5]   7.00-8.00   sec   556 MBytes  4.66 Gbits/sec   17    551 KBytes       
-[  5]   8.00-9.00   sec   556 MBytes  4.67 Gbits/sec   17    568 KBytes       
-[  5]   9.00-10.00  sec   559 MBytes  4.69 Gbits/sec   12    601 KBytes       
+[  5]   0.00-1.00   sec   602 MBytes  5.05 Gbits/sec  112    547 KBytes       
+[  5]   1.00-2.00   sec   721 MBytes  6.05 Gbits/sec   84    724 KBytes       
+[  5]   2.00-3.00   sec   743 MBytes  6.23 Gbits/sec  112    675 KBytes       
+[  5]   3.00-4.00   sec   716 MBytes  6.01 Gbits/sec  112    546 KBytes       
+[  5]   4.00-5.00   sec   717 MBytes  6.01 Gbits/sec   84    706 KBytes       
+[  5]   5.00-6.00   sec   738 MBytes  6.19 Gbits/sec  112    611 KBytes       
+[  5]   6.00-7.00   sec   736 MBytes  6.17 Gbits/sec  112    547 KBytes       
+[  5]   7.00-8.00   sec   699 MBytes  5.87 Gbits/sec   84    660 KBytes       
+[  5]   8.00-9.00   sec   716 MBytes  6.01 Gbits/sec  112    594 KBytes       
+[  5]   9.00-10.00  sec   738 MBytes  6.19 Gbits/sec   84    725 KBytes       
 - - - - - - - - - - - - - - - - - - - - - - - - -
 [ ID] Interval           Transfer     Bitrate         Retr
-[  5]   0.00-10.00  sec  5.36 GBytes  4.61 Gbits/sec  178            sender
-[  5]   0.00-10.00  sec  5.36 GBytes  4.60 Gbits/sec                 receiver
+[  5]   0.00-10.00  sec  6.96 GBytes  5.98 Gbits/sec  1008            sender
+[  5]   0.00-10.00  sec  6.95 GBytes  5.97 Gbits/sec                  receiver
 ```
 
 ## Destroy the test deployment
