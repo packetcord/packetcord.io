@@ -1,4 +1,4 @@
-# L3 Pseudo Tunnel
+# L3 Tunnel
 
 A demonstation of an IPv4 tunnel (over UDP) between the Node A and Node B subnets.
 
