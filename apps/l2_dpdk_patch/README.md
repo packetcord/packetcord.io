@@ -67,22 +67,23 @@ iperf3 -c 172.16.111.1
 
 ```console
 Connecting to host 172.16.111.1, port 5201
-[  5] local 172.16.111.2 port 43948 connected to 172.16.111.1 port 5201
+[  5] local 172.16.111.2 port 46630 connected to 172.16.111.1 port 5201
 [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
-[  5]   0.00-1.00   sec  1.06 GBytes  9.09 Gbits/sec    8   1.34 MBytes       
-[  5]   1.00-2.00   sec  1.07 GBytes  9.22 Gbits/sec    4   1.12 MBytes       
-[  5]   2.00-3.00   sec  1.07 GBytes  9.20 Gbits/sec    6   1.34 MBytes       
-[  5]   3.00-4.00   sec  1.08 GBytes  9.31 Gbits/sec    2   1.11 MBytes       
-[  5]   4.00-5.00   sec  1.08 GBytes  9.27 Gbits/sec    1   1.33 MBytes       
-[  5]   5.00-6.00   sec  1.08 GBytes  9.25 Gbits/sec    8   1.08 MBytes       
-[  5]   6.00-7.00   sec  1.09 GBytes  9.34 Gbits/sec   10   1.31 MBytes       
-[  5]   7.00-8.00   sec  1.08 GBytes  9.31 Gbits/sec    6   1.06 MBytes       
-[  5]   8.00-9.00   sec  1.10 GBytes  9.43 Gbits/sec    2   1.30 MBytes       
-[  5]   9.00-10.00  sec  1.11 GBytes  9.58 Gbits/sec    7   1.07 MBytes       
+[  5]   0.00-1.00   sec   651 MBytes  5.45 Gbits/sec   52   1.41 MBytes
+[  5]   1.00-2.00   sec   621 MBytes  5.21 Gbits/sec    2   1.37 MBytes
+[  5]   2.00-3.00   sec   624 MBytes  5.24 Gbits/sec    2   1.32 MBytes
+[  5]   3.00-4.00   sec   606 MBytes  5.08 Gbits/sec    1   1.27 MBytes
+[  5]   4.00-5.00   sec   598 MBytes  5.02 Gbits/sec    2   1.21 MBytes
+[  5]   5.00-6.00   sec   573 MBytes  4.81 Gbits/sec    7   1.12 MBytes
+[  5]   6.00-7.00   sec   620 MBytes  5.21 Gbits/sec    1   1.07 MBytes
+[  5]   7.00-8.00   sec   579 MBytes  4.85 Gbits/sec    0   1.41 MBytes
+[  5]   8.00-9.00   sec   590 MBytes  4.95 Gbits/sec    1   1.36 MBytes
+[  5]   9.00-10.00  sec   571 MBytes  4.79 Gbits/sec    1   1.28 MBytes
 - - - - - - - - - - - - - - - - - - - - - - - - -
 [ ID] Interval           Transfer     Bitrate         Retr
-[  5]   0.00-10.00  sec  10.8 GBytes  9.32 Gbits/sec   54            sender
-[  5]   0.00-10.00  sec  10.8 GBytes  9.31 Gbits/sec                 receiver
+[  5]   0.00-10.00  sec  5.89 GBytes  5.06 Gbits/sec   69            sender
+[  5]   0.00-10.00  sec  5.89 GBytes  5.06 Gbits/sec                 receiver
+
 ```
 
 ## Destroy the test deployment
