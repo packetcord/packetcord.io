@@ -48,9 +48,10 @@ docker exec -it node_b /bin/sh
 
 ```console
 PING 172.16.111.1 (172.16.111.1): 56 data bytes
-64 bytes from 172.16.111.1: seq=0 ttl=64 time=0.053 ms
-64 bytes from 172.16.111.1: seq=1 ttl=64 time=0.029 ms
-64 bytes from 172.16.111.1: seq=2 ttl=64 time=0.027 ms
+64 bytes from 172.16.111.1: seq=0 ttl=64 time=0.049 ms
+64 bytes from 172.16.111.1: seq=1 ttl=64 time=0.061 ms
+64 bytes from 172.16.111.1: seq=2 ttl=64 time=0.055 ms
+64 bytes from 172.16.111.1: seq=3 ttl=64 time=0.068 ms
 ```
 
 Let's also run iperf3 between Node A (server) and Node B (client):
@@ -86,7 +87,7 @@ Connecting to host 172.16.111.1, port 5201
 ```
 
 ## Destroy the test deployment
-Close all container shells. On the host, inside the l3_tunnel/test_deployment directory, execute:
+Close all container shells. On the host, inside the l2_xdp_patch_workers/test_deployment directory, execute:
 ```bash
 sudo ./cleanup.sh
 ```

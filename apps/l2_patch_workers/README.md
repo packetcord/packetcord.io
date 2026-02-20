@@ -87,7 +87,7 @@ Connecting to host 172.16.111.1, port 5201
 ```
 
 ## Destroy the test deployment
-Close all container shells. On the host, inside the l3_tunnel/test_deployment directory, execute:
+Close all container shells. On the host, inside the l2_patch_workers/test_deployment directory, execute:
 ```bash
 sudo ./cleanup.sh
 ```
