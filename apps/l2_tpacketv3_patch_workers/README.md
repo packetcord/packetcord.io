@@ -1,0 +1,93 @@
+# L2 Virtual Patch (with TPACKETv3, multi-thread)
+
+A demonstation of a virtual patch between two nodes.
+
+## Topology diagram
+![description](images/patch.png)
+
+## Steps
+
+### Build the project (all examples)
+```bash
+cd packetcord.io
+mkdir build
+cd build
+cmake .. --fresh
+make
+```
+
+### Start the test deployment
+
+```bash
+cd ..
+cd apps/l2_tpacketv3_patch_workers/test_deployment/
+sudo ./deploy.sh
+```
+
+### Go to the shell of Patch
+```bash
+docker exec -it patch /bin/sh
+```
+
+Inside the container, run the following commands and leave the shell open:
+```bash
+cd /root
+./l2_tpacketv3_patch_workers_app
+```
+
+### Result
+Open the shells of Node A and Node B. Try to ping each other (172.16.111.1 and 172.16.111.2).
+
+```bash
+docker exec -it node_a /bin/sh
+```
+
+```bash
+docker exec -it node_b /bin/sh
+```
+
+```console
+PING 172.16.111.1 (172.16.111.1): 56 data bytes
+64 bytes from 172.16.111.1: seq=0 ttl=64 time=2.667 ms
+64 bytes from 172.16.111.1: seq=1 ttl=64 time=3.640 ms
+64 bytes from 172.16.111.1: seq=2 ttl=64 time=3.618 ms
+64 bytes from 172.16.111.1: seq=3 ttl=64 time=2.596 ms
+```
+
+Let's also run iperf3 between Node A (server) and Node B (client):
+
+#### On Node A
+```bash
+iperf3 -s
+```
+
+#### On Node B
+```bash
+iperf3 -c 172.16.111.1
+```
+
+```console
+Connecting to host 172.16.111.1, port 5201
+[  5] local 172.16.111.2 port 56878 connected to 172.16.111.1 port 5201
+[ ID] Interval           Transfer     Bitrate         Retr  Cwnd
+[  5]   0.00-1.00   sec   566 MBytes  4.74 Gbits/sec    0   3.83 MBytes       
+[  5]   1.00-2.00   sec   712 MBytes  5.98 Gbits/sec    0   3.83 MBytes       
+[  5]   2.00-3.00   sec   706 MBytes  5.92 Gbits/sec    0   3.83 MBytes       
+[  5]   3.00-4.00   sec   707 MBytes  5.93 Gbits/sec    0   3.83 MBytes       
+[  5]   4.00-5.00   sec   710 MBytes  5.95 Gbits/sec    0   3.83 MBytes       
+[  5]   5.00-6.00   sec   712 MBytes  5.97 Gbits/sec    0   3.83 MBytes       
+[  5]   6.00-7.00   sec   711 MBytes  5.97 Gbits/sec    0   3.83 MBytes       
+[  5]   7.00-8.00   sec   696 MBytes  5.85 Gbits/sec    0   3.83 MBytes       
+[  5]   8.00-9.00   sec   724 MBytes  6.07 Gbits/sec    0   3.83 MBytes       
+[  5]   9.00-10.00  sec   694 MBytes  5.82 Gbits/sec    0   3.83 MBytes       
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Retr
+[  5]   0.00-10.00  sec  6.78 GBytes  5.82 Gbits/sec    0            sender
+[  5]   0.00-10.01  sec  6.78 GBytes  5.82 Gbits/sec                 receiver
+```
+
+## Destroy the test deployment
+Close all container shells. On the host, inside the l3_tunnel/test_deployment directory, execute:
+```bash
+sudo ./cleanup.sh
+```
