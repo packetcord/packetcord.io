@@ -49,7 +49,7 @@ cd /root
 Open the shells of Node A and Node B. Try to ping each other (11.11.11.100 and 192.168.111.100).
 
 ```bash
-docker exec -it node_b /bin/sh
+docker exec -it node_a /bin/sh
 ```
 
 ```bash
