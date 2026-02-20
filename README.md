@@ -27,7 +27,7 @@ PacketCord.io could be used for the development of custom:
 
 ## Framework Components
 
-The *PacketCord.io* comprises the following submodules: 
+The PacketCord.io comprises the following submodules: 
 - **CORD-FLOW**: Packet processing library
 - **CORD-CRYPTO**: Crypto library
 - **CORD-CRAFT**: Packet crafting and injection library
