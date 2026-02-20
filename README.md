@@ -7,7 +7,6 @@
 
 Build efficient packet processing logic, custom protocols, packet crafting and network applications.
 
----
 
 ## Use Cases
 
@@ -23,7 +22,6 @@ PacketCord.io could be used for the development of custom:
 - IP over any SerDes
 - IP over custom wire, radio and optical links
 
----
 
 ## Framework Components
 
@@ -34,19 +32,16 @@ The PacketCord.io comprises the following submodules:
 
 Each of the components exists as a separate repository. You don't have to worry about the build process - CMake takes care of everything.
 
----
 
 ## Try it
 
 Just go to the *apps* directory to get started with the avaialable examples - a README.md tutorial is provided for each app.
 
----
 
 ## License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
----
 
 <div align="center">
 
@@ -54,5 +49,3 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 [![GitHub Forks](https://img.shields.io/github/forks/packetcord/packetcord.io?style=social)](https://github.com/packetcord/packetcord.io)
 
 </div>
-
----
