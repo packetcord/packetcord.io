@@ -5,6 +5,9 @@ A demonstration of a UDP-in-UDP crafted packet from Node-B to the internal netwo
 ## Topology diagram
 ![description](images/pseudo_tunnel.png)
 
+## Encapsulation
+![description](images/pseudo_tunnel_encapsulation.png)
+
 ## Steps
 
 ### Build the project (all examples)
