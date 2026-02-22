@@ -33,7 +33,7 @@ The PacketCord.io comprises the following submodules:
 Each of the components exists as a separate repository. You don't have to worry about the build process - CMake takes care of everything.
 
 
-## Try it
+## Examples
 
 Just go to the *apps* directory to get started with the avaialable examples - a README.md tutorial is provided for each app.
 
