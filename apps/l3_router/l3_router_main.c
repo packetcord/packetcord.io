@@ -286,7 +286,7 @@ static void cord_route_packet(uint8_t ingress_port, void *buffer, size_t rx_byte
 
     // Recalculate IPv4 checksum
     uint16_t new_checksum = cord_calculate_ipv4_checksum(ip);
-    cord_set_field_ipv4_checksum(ip, new_checksum);
+    cord_set_field_ipv4_checksum(ip, cord_htons(new_checksum));
 
     // Rewrite Ethernet header
     // Update destination MAC (next hop's MAC)
