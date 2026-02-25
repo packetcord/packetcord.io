@@ -47,7 +47,7 @@ set(CMAKE_C_EXTENSIONS OFF CACHE BOOL "" FORCE)
 
 # 6. Example apps
 add_subdirectory(apps/l2_switch)
-# add_subdirectory(apps/l3_router EXCLUDE_FROM_ALL)
+add_subdirectory(apps/l3_router)
 add_subdirectory(apps/l2_patch)
 add_subdirectory(apps/l2_patch_workers)
 add_subdirectory(apps/l2_tpacketv3_patch)
