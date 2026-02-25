@@ -46,7 +46,7 @@ add_subdirectory(modules/cord-craft)
 set(CMAKE_C_EXTENSIONS OFF CACHE BOOL "" FORCE)
 
 # 6. Example apps
-# add_subdirectory(apps/l2_switch EXCLUDE_FROM_ALL)
+add_subdirectory(apps/l2_switch)
 # add_subdirectory(apps/l3_router EXCLUDE_FROM_ALL)
 add_subdirectory(apps/l2_patch)
 add_subdirectory(apps/l2_patch_workers)
@@ -65,3 +65,6 @@ endif()
 
 add_subdirectory(apps/l3_tunnel)
 add_subdirectory(apps/l3_pseudo_tunnel)
+
+add_subdirectory(tests/cam_test)
+add_subdirectory(tests/lpm_test)
