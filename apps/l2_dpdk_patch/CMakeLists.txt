@@ -8,13 +8,13 @@ add_executable(l2_dpdk_patch_app l2_dpdk_patch_main.c)
 
 # Find DPDK using pkg-config
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(DPDK REQUIRED libdpdk)
+pkg_check_modules(DPDK REQUIRED --static libdpdk)
 
 # Link against cord-flow and DPDK
 target_link_libraries(l2_dpdk_patch_app
     PRIVATE
         cord_flow
-        ${DPDK_LIBRARIES}
+        ${DPDK_STATIC_LIBRARIES}
 )
 
 # Include paths for headers
