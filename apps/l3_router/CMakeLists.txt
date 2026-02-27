@@ -10,7 +10,6 @@ add_executable(l3_router_app l3_router_main.c)
 target_link_libraries(l3_router_app
     PRIVATE
         cord_flow
-        -static
 )
 
 # Include paths for headers
