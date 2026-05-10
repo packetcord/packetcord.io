@@ -1,0 +1,87 @@
+---
+# PacketCord SDK Code Style Configuration
+# Pure Allman (BSD) brace style for all constructs
+
+BasedOnStyle: LLVM
+Language: Cpp
+Standard: Latest
+
+# ============================================================
+# BRACE STYLE - Pure Allman
+# ============================================================
+BreakBeforeBraces: Allman
+
+# ============================================================
+# INDENTATION
+# ============================================================
+IndentWidth: 4
+UseTab: Never
+TabWidth: 4
+ContinuationIndentWidth: 4
+IndentCaseLabels: false
+IndentPPDirectives: None
+
+# ============================================================
+# SPACING
+# ============================================================
+SpaceAfterCStyleCast: true
+SpaceBeforeParens: ControlStatements
+SpacesInParentheses: false
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 1
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeRangeBasedForLoopColon: true
+
+# ============================================================
+# ALIGNMENT
+# ============================================================
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignEscapedNewlines: Left
+AlignOperands: Align
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 0
+
+# ============================================================
+# LINE BREAKING
+# ============================================================
+AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowAllParametersOfDeclarationOnNextLine: true
+BinPackParameters: true
+BinPackArguments: true
+
+# ============================================================
+# COLUMN LIMIT
+# ============================================================
+ColumnLimit: 120
+
+# ============================================================
+# POINTERS AND REFERENCES
+# ============================================================
+PointerAlignment: Right
+DerivePointerAlignment: false
+
+# ============================================================
+# OTHER FORMATTING
+# ============================================================
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 2
+SortIncludes: Never
+ReflowComments: false
+InsertNewlineAtEOF: true
+
+# ============================================================
+# PENALTIES (for line breaking decisions)
+# ============================================================
+PenaltyBreakBeforeFirstCallParameter: 19
+PenaltyBreakComment: 300
+PenaltyBreakFirstLessLess: 120
+PenaltyBreakString: 1000
+PenaltyExcessCharacter: 1000000
+PenaltyReturnTypeOnItsOwnLine: 60

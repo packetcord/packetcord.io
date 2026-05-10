@@ -63,11 +63,11 @@ int main(void)
     {
         int nb_fds = CORD_EVENT_HANDLER_WAIT(cord_app_context.evh);
 
-        if (nb_fds == -1) 
+        if (nb_fds == -1)
         {
             if (errno == EINTR)
                 continue;
-            else 
+            else
             {
                 CORD_ERROR("[CordApp] Error: CORD_EVENT_HANDLER_WAIT()");
                 CORD_EXIT(CORD_ERR);
