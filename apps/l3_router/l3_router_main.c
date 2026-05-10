@@ -24,7 +24,7 @@
 // Static ARP entry structure
 typedef struct
 {
-    uint32_t next_hop_ip;       // Next hop IP (host byte order)
+    uint32_t next_hop_ip; // Next hop IP (host byte order)
     cord_mac_addr_t next_hop_mac;
     uint8_t egress_port;
 } static_arp_entry_t;
@@ -45,15 +45,20 @@ static struct
     cord_mac_addr_t router_macs[4];
 } cord_app_context;
 
-static CordFlowPoint* get_port_by_id(uint8_t port_id)
+static CordFlowPoint *get_port_by_id(uint8_t port_id)
 {
     switch (port_id)
     {
-        case 0: return cord_app_context.port_0;
-        case 1: return cord_app_context.port_1;
-        case 2: return cord_app_context.port_2;
-        case 3: return cord_app_context.port_3;
-        default: return NULL;
+    case 0:
+        return cord_app_context.port_0;
+    case 1:
+        return cord_app_context.port_1;
+    case 2:
+        return cord_app_context.port_2;
+    case 3:
+        return cord_app_context.port_3;
+    default:
+        return NULL;
     }
 }
 
@@ -62,7 +67,8 @@ static void cord_populate_routing_table(void)
     CORD_LOG("[CordApp] Populating routing table...\n");
 
     // Routing table entries: Network/Prefix → Next Hop ID
-    struct {
+    struct
+    {
         const char *cidr;
         uint32_t next_hop_id;
     } routes[] = {
@@ -87,8 +93,7 @@ static void cord_populate_routing_table(void)
         ret = cord_ipv4_lpm_add(cord_app_context.lpm, ip, depth, routes[i].next_hop_id);
         if (ret == 0)
         {
-            CORD_LOG("[CordApp] Added route: %s -> next_hop_id %u\n",
-                     routes[i].cidr, routes[i].next_hop_id);
+            CORD_LOG("[CordApp] Added route: %s -> next_hop_id %u\n", routes[i].cidr, routes[i].next_hop_id);
         }
         else
         {
@@ -104,7 +109,8 @@ static void cord_populate_arp_table(void)
     CORD_LOG("[CordApp] Populating static ARP table...\n");
 
     // Static ARP entries: next_hop_id → (IP, MAC, port)
-    struct {
+    struct
+    {
         uint8_t next_hop_id;
         const char *ip_str;
         const char *mac_str;
@@ -131,8 +137,7 @@ static void cord_populate_arp_table(void)
         cord_app_context.arp_table[idx].next_hop_ip = ip;
 
         // Parse MAC address
-        ret = cord_mac_str_to_binary(arp_entries[i].mac_str,
-                                      &cord_app_context.arp_table[idx].next_hop_mac);
+        ret = cord_mac_str_to_binary(arp_entries[i].mac_str, &cord_app_context.arp_table[idx].next_hop_mac);
         if (ret != 0)
         {
             CORD_LOG("[CordApp] ERROR: Failed to parse MAC %s\n", arp_entries[i].mac_str);
@@ -142,11 +147,8 @@ static void cord_populate_arp_table(void)
         // Set egress port
         cord_app_context.arp_table[idx].egress_port = arp_entries[i].egress_port;
 
-        CORD_LOG("[CordApp] ARP entry %u: %s -> %s (port %u)\n",
-                 arp_entries[i].next_hop_id,
-                 arp_entries[i].ip_str,
-                 arp_entries[i].mac_str,
-                 arp_entries[i].egress_port);
+        CORD_LOG("[CordApp] ARP entry %u: %s -> %s (port %u)\n", arp_entries[i].next_hop_id, arp_entries[i].ip_str,
+                 arp_entries[i].mac_str, arp_entries[i].egress_port);
     }
 
     CORD_LOG("[CordApp] ARP table population complete.\n");
@@ -158,10 +160,10 @@ static void cord_set_router_macs(void)
 
     // Router's own MAC addresses per interface
     const char *router_mac_strs[] = {
-        "4e:12:e7:42:83:05",  // port_0
-        "4e:12:e7:42:83:06",  // port_1
-        "4e:12:e7:42:83:07",  // port_2
-        "4e:12:e7:42:83:08",  // port_3
+        "4e:12:e7:42:83:05", // port_0
+        "4e:12:e7:42:83:06", // port_1
+        "4e:12:e7:42:83:07", // port_2
+        "4e:12:e7:42:83:08", // port_3
     };
 
     for (size_t i = 0; i < 4; i++)

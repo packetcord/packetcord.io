@@ -36,7 +36,8 @@ static void cord_populate_static_cam(void)
     CORD_LOG("[CordApp] Populating static CAM entries...\n");
 
     // Static MAC-to-Port mappings (all on VLAN 0 / untagged)
-    struct {
+    struct
+    {
         const char *mac_str;
         uint32_t port_id;
         uint16_t vlan_id;
@@ -57,14 +58,10 @@ static void cord_populate_static_cam(void)
             continue;
         }
 
-        ret = cord_l2_cam_add(cord_app_context.cam, &mac,
-                              static_entries[i].port_id,
-                              static_entries[i].vlan_id);
+        ret = cord_l2_cam_add(cord_app_context.cam, &mac, static_entries[i].port_id, static_entries[i].vlan_id);
         if (ret == 0)
         {
-            CORD_LOG("[CordApp] Added: %s VLAN %u -> Port %u\n",
-                     static_entries[i].mac_str,
-                     static_entries[i].vlan_id,
+            CORD_LOG("[CordApp] Added: %s VLAN %u -> Port %u\n", static_entries[i].mac_str, static_entries[i].vlan_id,
                      static_entries[i].port_id);
         }
         else
@@ -145,10 +142,18 @@ static void cord_switch_packet(uint8_t ingress_port, void *buffer, size_t rx_byt
 
         switch (egress_port)
         {
-            case 0: out_port = cord_app_context.port_0; break;
-            case 1: out_port = cord_app_context.port_1; break;
-            case 2: out_port = cord_app_context.port_2; break;
-            case 3: out_port = cord_app_context.port_3; break;
+        case 0:
+            out_port = cord_app_context.port_0;
+            break;
+        case 1:
+            out_port = cord_app_context.port_1;
+            break;
+        case 2:
+            out_port = cord_app_context.port_2;
+            break;
+        case 3:
+            out_port = cord_app_context.port_3;
+            break;
         }
 
         if (out_port && egress_port != ingress_port)
