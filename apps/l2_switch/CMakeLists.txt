@@ -10,6 +10,7 @@ add_executable(l2_switch_app l2_switch_main.c)
 target_link_libraries(l2_switch_app
     PRIVATE
         cord_flow
+        -static # Adding for 'compatibility' when running on Alpile (musl)
 )
 
 # Include paths for headers
