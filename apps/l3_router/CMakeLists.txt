@@ -10,7 +10,7 @@ add_executable(l3_router_app l3_router_main.c)
 target_link_libraries(l3_router_app
     PRIVATE
         cord_flow
-        -static # Adding for 'compatibility' when running on Alpile (musl)
+#        -static # Adding for 'compatibility' when running on Alpile (musl)
 )
 
 # Include paths for headers
