@@ -35,8 +35,8 @@ Each of the components exists as a separate repository. You don't have to worry 
 
 ## Examples
 
-Just go to the *apps* directory to get started with the avaialable examples - a README.md tutorial is provided for each app.
-
+Refer to the *apps* directory for the standalone examples. 
+You can also also test them within an emulated topology environment using our free *Network Builder IDE* - refer to our [MkDocs page](https://docs.packetcord.io) for details.
 
 ## License
 
