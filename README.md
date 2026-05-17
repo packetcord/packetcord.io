@@ -36,7 +36,7 @@ Each of the components exists as a separate repository. You don't have to worry 
 ## Examples
 
 Refer to the *apps* directory for the standalone examples. 
-You can also also test them within an emulated topology environment using our free *Network Builder IDE* - refer to our [MkDocs page](https://docs.packetcord.io) for details.
+You can also also test them within an emulated topology environment using our free *Network Builder IDE* - refer to our [MkDocs page](https://docs.packetcord.io/ide/) for details.
 
 ## License
 
