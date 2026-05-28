@@ -50,7 +50,7 @@ add_subdirectory(apps/l2_switch)
 add_subdirectory(apps/l3_router)
 add_subdirectory(apps/l2_patch)
 add_subdirectory(apps/l2_patch_cbpf)
-add_subdirectory(apps/l2_patch_ebpf)
+# add_subdirectory(apps/l2_patch_ebpf) # Generate the eBPF file first - see the instructions at the beginnig of l2_patch_ebpf_main.c
 add_subdirectory(apps/l2_patch_workers)
 add_subdirectory(apps/l2_tpacketv3_patch)
 add_subdirectory(apps/l2_tpacketv3_patch_workers)
