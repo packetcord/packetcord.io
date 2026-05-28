@@ -1,5 +1,10 @@
+# IDE
 build/
 .vscode/
 .theia/
 .claude/
 .cache/
+
+# eBPF
+*.bpf.o
+*.skel.h
