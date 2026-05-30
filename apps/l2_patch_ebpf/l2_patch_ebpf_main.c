@@ -26,11 +26,15 @@
 #define ETH_IFACE_A_NAME "veth1"
 #define ETH_IFACE_B_NAME "veth2"
 
+#define LOG_MAC_ADDRESSES_FROM_USER_SPACE 0
+
 static struct
 {
     CordFlowPoint *l2_eth_a;
     CordFlowPoint *l2_eth_b;
     CordEventHandler *evh;
+    struct ring_buffer *rb;
+	struct l2_patch_ebpf_bpf *skel;
 } cord_app_context;
 
 static void cord_app_setup(void)
@@ -41,6 +45,8 @@ static void cord_app_setup(void)
 static void cord_app_cleanup(void)
 {
     CORD_LOG("[CordApp] Destroying all objects!\n");
+    ring_buffer__free(cord_app_context.rb);
+    l2_patch_ebpf_bpf__destroy(cord_app_context.skel);
     CORD_DESTROY_FLOW_POINT(cord_app_context.l2_eth_a);
     CORD_DESTROY_FLOW_POINT(cord_app_context.l2_eth_b);
     CORD_DESTROY_EVENT_HANDLER(cord_app_context.evh);
@@ -55,17 +61,19 @@ static void cord_app_sigint_callback(int sig)
 
 static int sample_callback(void *ctx, void *data, size_t data_size)
 {
-	const struct so_event *e = data;
+    const struct so_event *e = data;
 
-	if (e->pkt_type != PACKET_HOST)
-		return 0;
+    // Access the packet (header) data and metadata from user-space (after the ring buffer has been polled)
+    if (e->pkt_type == PACKET_HOST)
+        return 0;
 
-	if (e->ip_proto < 0 || e->ip_proto >= IPPROTO_MAX)
-		return 0;
-
-    // Log headers MAC addresses
-    CORD_LOG("eth.src_addr: %02X:%02X:%02X:%02X:%02X:%02X\n", e->src_mac[0], e->src_mac[1], e->src_mac[2], e->src_mac[3], e->src_mac[4], e->src_mac[5]);
-    CORD_LOG("eth.dst_addr: %02X:%02X:%02X:%02X:%02X:%02X\n", e->dst_mac[0], e->dst_mac[0], e->dst_mac[2], e->dst_mac[3], e->dst_mac[4], e->dst_mac[5]);
+#if (LOG_MAC_ADDRESSES_FROM_USER_SPACE == 1)
+    // Log the MAC addresses
+    CORD_LOG("[CordApp] eth.src_addr: %02X:%02X:%02X:%02X:%02X:%02X\n",
+             e->src_mac[0], e->src_mac[1], e->src_mac[2], e->src_mac[3], e->src_mac[4], e->src_mac[5]);
+    CORD_LOG("[CordApp] eth.dst_addr: %02X:%02X:%02X:%02X:%02X:%02X\n", 
+             e->dst_mac[0], e->dst_mac[1], e->dst_mac[2], e->dst_mac[3], e->dst_mac[4], e->dst_mac[5]);
+#endif
 
     return CORD_OK;
 }
@@ -90,41 +98,33 @@ int main(void)
     cord_retval = CORD_EVENT_HANDLER_REGISTER_FLOW_POINT(cord_app_context.evh, cord_app_context.l2_eth_b);
 
     // eBPF-related part
-    struct ring_buffer *rb = NULL;
-	struct l2_patch_ebpf_bpf *skel;
-    int ebpf_prog_fd;
-	skel = l2_patch_ebpf_bpf__open_and_load();
-	if (skel == NULL)
+	cord_app_context.skel = l2_patch_ebpf_bpf__open_and_load();
+	if (cord_app_context.skel == NULL)
     {
         CORD_ERROR("[CordApp] Error: ebpf_filter_bpf__open_and_load()");
 	}
 
     // Set up ring buffer polling
-	rb = ring_buffer__new(bpf_map__fd(skel->maps.rb), sample_callback, NULL, NULL);
-	if (rb == NULL)
+	cord_app_context.rb = ring_buffer__new(bpf_map__fd(cord_app_context.skel->maps.rb), sample_callback, NULL, NULL);
+	if (cord_app_context.rb == NULL)
     {
         // Cleanup
-        ring_buffer__free(rb);
-	    l2_patch_ebpf_bpf__destroy(skel);
+        ring_buffer__free(cord_app_context.rb);
+	    l2_patch_ebpf_bpf__destroy(cord_app_context.skel);
         CORD_ERROR("[CordApp] Error: ring_buffer__new()");
 	}
 
     // Attach BPF program to raw socket
-	ebpf_prog_fd = bpf_program__fd(skel->progs.socket_handler);
+	int ebpf_prog_fd = bpf_program__fd(cord_app_context.skel->progs.socket_handler);
     cord_filter_type_t filter_type = EBPF_FILTER;
     cord_retval = CORD_FLOW_POINT_ATTACH_FILTER(cord_app_context.l2_eth_a, (void *)&ebpf_prog_fd, (void *)&filter_type);
     if (cord_retval == CORD_OK)
     {
-        CORD_LOG("[CordApp] cBPF filter attached successfully!\n");
+        CORD_LOG("[CordApp] eBPF filter attached successfully!\n");
     }
 
     while (1)
     {
-        // The eBPF ring buffer - ring_buffer__poll()
-        //
-        // ...
-        //
-
         // The Linux event
         int nb_fds = CORD_EVENT_HANDLER_WAIT(cord_app_context.evh);
 
@@ -184,6 +184,13 @@ int main(void)
                     // Handle the error
                 }
             }
+        }
+
+        // The BPF buffer event
+        cord_retval = ring_buffer__poll(cord_app_context.rb, 0);
+        if (cord_retval < 0)
+        {
+            CORD_ERROR("[CordApp] Error: ring_buffer__poll()");
         }
     }
 

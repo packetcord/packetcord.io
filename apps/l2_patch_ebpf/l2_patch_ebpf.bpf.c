@@ -19,8 +19,8 @@ struct
 SEC("socket")
 int socket_handler(struct __sk_buff *skb)
 {
-    // Accept IPv4 traffic only
-    if (skb->protocol != bpf_htons(ETH_P_IP))
+    // Accept IPv4 and ARP traffic only
+    if ((skb->protocol != bpf_htons(ETH_P_IP)) && (skb->protocol != bpf_htons(ETH_P_ARP)))
         return 0;
 
     struct so_event *e;
@@ -31,7 +31,6 @@ int socket_handler(struct __sk_buff *skb)
     __builtin_memset(e, 0, sizeof(*e));
 
     bpf_skb_load_bytes(skb, 0, e->dst_mac, 6);
-    // Offset 6 = Source MAC (6 bytes)
     bpf_skb_load_bytes(skb, 6, e->src_mac, 6);
 
     e->ifindex = skb->ifindex;
