@@ -146,8 +146,6 @@ int main(void)
 
             if (current_fd == cord_app_context.l4_tcp->aux_handles[CLIENT_CONN_AUX_HANDLE_INDEX])
             {
-                CORD_LOG("[CordApp] Receiving encapsulated data from tunnel client\n");
-
                 cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l4_tcp, 0, buffer, BUFFER_SIZE, &rx_bytes);
                 if (cord_retval != CORD_OK)
                 {
@@ -173,7 +171,7 @@ int main(void)
 
             if (current_fd == cord_app_context.l4_tcp->io_handle)
             {
-                CORD_LOG("[CordApp] Inbound connection detected on listen port\n");
+                CORD_LOG("[CordApp] Inbound connection detected on listen port.\n");
 
                 cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l4_tcp, 0, buffer, BUFFER_SIZE, &rx_bytes);
 
@@ -183,7 +181,7 @@ int main(void)
                     if (cord_retval == CORD_OK)
                     {
                         client_connected = TRUE;
-                        CORD_LOG("[CordApp] Tunnel client accepted and AUX handle armed in epoll\n");
+                        CORD_LOG("[CordApp] Tunnel client accepted and AUX handle armed in epoll.\n");
                     }
                 }
             }
