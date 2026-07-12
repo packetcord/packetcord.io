@@ -1,7 +1,7 @@
 #include <cord_flow/event_handler/cord_linux_api_event_handler.h>
 #include <cord_flow/flow_point/cord_l2_raw_socket_flow_point.h>
 #include <cord_flow/flow_point/cord_l3_stack_inject_flow_point.h>
-#include <cord_flow/flow_point/cord_l4_udp_flow_point.h>
+#include <cord_flow/flow_point/cord_l4_tcp_flow_point.h>
 #include <cord_flow/memory/cord_memory.h>
 #include <cord_flow/match/cord_match.h>
 #include <cord_flow/action/cord_action.h>
@@ -28,7 +28,7 @@ static struct
 {
     CordFlowPoint *l2_eth;
     CordFlowPoint *l3_si;
-    CordFlowPoint *l4_udp;
+    CordFlowPoint *l4_tcp;
     CordEventHandler *evh;
 } cord_app_context;
 
@@ -42,7 +42,7 @@ static void cord_app_cleanup(void)
     CORD_LOG("[CordApp] Destroying all objects!\n");
     CORD_DESTROY_FLOW_POINT(cord_app_context.l2_eth);
     CORD_DESTROY_FLOW_POINT(cord_app_context.l3_si);
-    CORD_DESTROY_FLOW_POINT(cord_app_context.l4_udp);
+    CORD_DESTROY_FLOW_POINT(cord_app_context.l4_tcp);
     CORD_DESTROY_EVENT_HANDLER(cord_app_context.evh);
 
     CORD_LOG("[CordApp] Expecting manual additional cleanup.\n");
@@ -67,6 +67,7 @@ int main(void)
     size_t tx_bytes = 0;
 
     cord_ipv4_hdr_t *ip = NULL;
+    cord_tcp_hdr_t *tcp = NULL;
 
     CORD_LOG("[CordApp] Launching the PacketCord Tunnel - Side A!\n");
 
@@ -74,12 +75,12 @@ int main(void)
 
     cord_app_context.l2_eth = CORD_CREATE_L2_RAW_SOCKET_FLOW_POINT('A', ANCHOR_IFACE);
     cord_app_context.l3_si  = CORD_CREATE_L3_STACK_INJECT_FLOW_POINT('I');
-    cord_app_context.l4_udp = CORD_CREATE_L4_UDP_FLOW_POINT('B', inet_addr(TEP_SOURCE_IP), inet_addr(TEP_DEST_IP), TEP_SOURCE_PORT, TEP_DEST_PORT);
+    cord_app_context.l4_tcp = CORD_CREATE_L4_TCP_FLOW_POINT('B', inet_addr(TEP_SOURCE_IP), inet_addr(TEP_DEST_IP), TEP_SOURCE_PORT, TEP_DEST_PORT, FALSE);
 
     cord_app_context.evh = CORD_CREATE_LINUX_API_EVENT_HANDLER('E', -1);
 
     cord_retval = CORD_EVENT_HANDLER_REGISTER_FLOW_POINT(cord_app_context.evh, cord_app_context.l2_eth);
-    cord_retval = CORD_EVENT_HANDLER_REGISTER_FLOW_POINT(cord_app_context.evh, cord_app_context.l4_udp);
+    cord_retval = CORD_EVENT_HANDLER_REGISTER_FLOW_POINT(cord_app_context.evh, cord_app_context.l4_tcp);
 
     while (1)
     {
@@ -126,8 +127,10 @@ int main(void)
                 if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUD(cord_app_context.l2_eth) != CORD_OK)
                     continue; // Ensure this is not an outgoing packet
 
-                if (rx_bytes < sizeof(cord_eth_hdr_t) + iphdr_len + sizeof(cord_udp_hdr_t))
-                    continue; // Too short for UDP header
+                if (rx_bytes < sizeof(cord_eth_hdr_t) + iphdr_len + sizeof(cord_tcp_hdr_t))
+                    continue; // Too short for TCP header
+
+                tcp = cord_header_tcp_ipv4(ip);
 
                 uint32_t src_ip = cord_get_field_ipv4_src_addr_ntohl(ip);
                 uint32_t dst_ip = cord_get_field_ipv4_dst_addr_ntohl(ip);
@@ -136,7 +139,7 @@ int main(void)
                 {
                     uint16_t total_len = cord_get_field_ipv4_total_length_ntohs(ip);
 
-                    cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l4_udp, 0, ip, total_len, &tx_bytes);
+                    cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l4_tcp, 0, ip, total_len, &tx_bytes);
                     if (cord_retval != CORD_OK)
                     {
                         // Handle the error
@@ -144,9 +147,9 @@ int main(void)
                 }
             }
 
-            if (cord_app_context.evh->events[n].data.fd == cord_app_context.l4_udp->io_handle)
+            if (cord_app_context.evh->events[n].data.fd == cord_app_context.l4_tcp->io_handle)
             {
-                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l4_udp, 0, buffer, BUFFER_SIZE, &rx_bytes);
+                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l4_tcp, 0, buffer, BUFFER_SIZE, &rx_bytes);
                 if (cord_retval != CORD_OK)
                     continue; // Raw socket receive error
 
