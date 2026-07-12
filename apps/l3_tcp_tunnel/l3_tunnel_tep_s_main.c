@@ -67,6 +67,7 @@ int main(void)
     size_t tx_bytes = 0;
 
     cord_ipv4_hdr_t *ip = NULL;
+    bool client_connected = FALSE;
 
     CORD_LOG("[CordApp] Launching the PacketCord Tunnel - Side B!\n");
 
@@ -74,6 +75,8 @@ int main(void)
 
     cord_app_context.l2_eth = CORD_CREATE_L2_RAW_SOCKET_FLOW_POINT('A', ANCHOR_IFACE);
     cord_app_context.l3_si  = CORD_CREATE_L3_STACK_INJECT_FLOW_POINT('I');
+
+    // This is the server - set to flag to TRUE
     cord_app_context.l4_tcp = CORD_CREATE_L4_TCP_FLOW_POINT('B', inet_addr(TEP_SOURCE_IP), inet_addr(TEP_DEST_IP), TEP_SOURCE_PORT, TEP_DEST_PORT, TRUE);
 
     cord_app_context.evh = CORD_CREATE_LINUX_API_EVENT_HANDLER('E', -1);
@@ -98,7 +101,9 @@ int main(void)
 
         for (uint8_t n = 0; n < nb_fds; n++)
         {
-            if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth->io_handle)
+            int current_fd = cord_app_context.evh->events[n].data.fd;
+
+            if (current_fd == cord_app_context.l2_eth->io_handle)
             {
                 cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth, 0, buffer, BUFFER_SIZE, &rx_bytes);
                 if (cord_retval != CORD_OK)
@@ -119,7 +124,6 @@ int main(void)
                     continue; // Not IPv4
 
                 int iphdr_len = cord_get_field_ipv4_header_length(ip);
-
                 if (rx_bytes < sizeof(cord_eth_hdr_t) + iphdr_len)
                     continue; // IP header incomplete
 
@@ -127,15 +131,11 @@ int main(void)
                     continue; // Ensure this is not an outgoing packet
 
                 if (rx_bytes < sizeof(cord_eth_hdr_t) + iphdr_len + sizeof(cord_tcp_hdr_t))
-                    continue; // Too short for tcp header
-
-                uint32_t src_ip = cord_get_field_ipv4_src_addr_ntohl(ip);
-                uint32_t dst_ip = cord_get_field_ipv4_dst_addr_ntohl(ip);
+                    continue; // Too short for TCP header
 
                 if (cord_compare_ipv4_dst_subnet_ntohl(ip, cord_ntohl(prefix_ip.s_addr), cord_ntohl(netmask.s_addr)))
                 {
                     uint16_t total_len = cord_get_field_ipv4_total_length_ntohs(ip);
-
                     cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l4_tcp, 0, ip, total_len, &tx_bytes);
                     if (cord_retval != CORD_OK)
                     {
@@ -144,28 +144,47 @@ int main(void)
                 }
             }
 
-            if (cord_app_context.evh->events[n].data.fd == cord_app_context.l4_tcp->io_handle)
+            if (current_fd == cord_app_context.l4_tcp->aux_handles[CLIENT_CONN_AUX_HANDLE_INDEX])
             {
+                CORD_LOG("[CordApp] Receiving encapsulated data from tunnel client\n");
+
                 cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l4_tcp, 0, buffer, BUFFER_SIZE, &rx_bytes);
                 if (cord_retval != CORD_OK)
-                    continue; // Raw socket receive error
+                {
+                    // If connection dropped or broke
+                    client_connected = FALSE;
+                    continue;
+                }
 
                 cord_ipv4_hdr_t *ip_inner = cord_header_ipv4(buffer);
-
                 if (rx_bytes != cord_get_field_ipv4_total_length_ntohs(ip_inner))
                     continue; // Packet partially received
 
                 if (cord_get_field_ipv4_version(ip_inner) != 4)
-                    continue;
-
-                int ip_inner_hdrlen = cord_get_field_ipv4_header_length(ip_inner);
+                    continue; // Inner packet not IPv4
 
                 CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(cord_app_context.l3_si, cord_get_field_ipv4_dst_addr(ip_inner));
-
                 cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l3_si, 0, buffer, cord_get_field_ipv4_total_length_ntohs(ip_inner), &tx_bytes);
                 if (cord_retval != CORD_OK)
                 {
                     // Handle the error
+                }
+            }
+
+            if (current_fd == cord_app_context.l4_tcp->io_handle)
+            {
+                CORD_LOG("[CordApp] Inbound connection detected on listen port\n");
+
+                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l4_tcp, 0, buffer, BUFFER_SIZE, &rx_bytes);
+
+                if (client_connected != TRUE)
+                {
+                    cord_retval = CORD_EVENT_HANDLER_REGISTER_AUX_HANDLE(cord_app_context.evh, cord_app_context.l4_tcp, CLIENT_CONN_AUX_HANDLE_INDEX);
+                    if (cord_retval == CORD_OK)
+                    {
+                        client_connected = TRUE;
+                        CORD_LOG("[CordApp] Tunnel client accepted and AUX handle armed in epoll\n");
+                    }
                 }
             }
         }

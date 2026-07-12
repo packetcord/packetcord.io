@@ -98,7 +98,9 @@ int main(void)
 
         for (uint8_t n = 0; n < nb_fds; n++)
         {
-            if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth->io_handle)
+            int current_fd = cord_app_context.evh->events[n].data.fd;
+
+            if (current_fd == cord_app_context.l2_eth->io_handle)
             {
                 cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth, 0, buffer, BUFFER_SIZE, &rx_bytes);
                 if (cord_retval != CORD_OK)
@@ -129,9 +131,6 @@ int main(void)
                 if (rx_bytes < sizeof(cord_eth_hdr_t) + iphdr_len + sizeof(cord_tcp_hdr_t))
                     continue; // Too short for TCP header
 
-                uint32_t src_ip = cord_get_field_ipv4_src_addr_ntohl(ip);
-                uint32_t dst_ip = cord_get_field_ipv4_dst_addr_ntohl(ip);
-
                 if (cord_compare_ipv4_dst_subnet_ntohl(ip, cord_ntohl(prefix_ip.s_addr), cord_ntohl(netmask.s_addr)))
                 {
                     uint16_t total_len = cord_get_field_ipv4_total_length_ntohs(ip);
@@ -144,7 +143,7 @@ int main(void)
                 }
             }
 
-            if (cord_app_context.evh->events[n].data.fd == cord_app_context.l4_tcp->io_handle)
+            if (current_fd == cord_app_context.l4_tcp->io_handle)
             {
                 cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l4_tcp, 0, buffer, BUFFER_SIZE, &rx_bytes);
                 if (cord_retval != CORD_OK)
@@ -156,9 +155,7 @@ int main(void)
                     continue; // Packet partially received
 
                 if (cord_get_field_ipv4_version(ip_inner) != 4)
-                    continue;
-
-                int ip_inner_hdrlen = cord_get_field_ipv4_header_length(ip_inner);
+                    continue; // Inner packet not IPv4
 
                 CORD_L3_STACK_INJECT_FLOW_POINT_SET_TARGET_IPV4(cord_app_context.l3_si, cord_get_field_ipv4_dst_addr(ip_inner));
 
