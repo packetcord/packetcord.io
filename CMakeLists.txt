@@ -71,6 +71,7 @@ endif()
 
 add_subdirectory(apps/l3_tunnel)
 add_subdirectory(apps/l3_pseudo_tunnel)
+add_subdirectory(apps/l3_tcp_tunnel)
 
 add_subdirectory(tests/cam_test)
 add_subdirectory(tests/lpm_test)

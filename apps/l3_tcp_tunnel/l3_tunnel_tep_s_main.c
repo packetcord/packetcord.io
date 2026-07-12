@@ -67,7 +67,6 @@ int main(void)
     size_t tx_bytes = 0;
 
     cord_ipv4_hdr_t *ip = NULL;
-    cord_tcp_hdr_t *tcp = NULL;
 
     CORD_LOG("[CordApp] Launching the PacketCord Tunnel - Side B!\n");
 
@@ -129,8 +128,6 @@ int main(void)
 
                 if (rx_bytes < sizeof(cord_eth_hdr_t) + iphdr_len + sizeof(cord_tcp_hdr_t))
                     continue; // Too short for tcp header
-
-                tcp = cord_header_tcp_ipv4(ip);
 
                 uint32_t src_ip = cord_get_field_ipv4_src_addr_ntohl(ip);
                 uint32_t dst_ip = cord_get_field_ipv4_dst_addr_ntohl(ip);
