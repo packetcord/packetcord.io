@@ -7,7 +7,7 @@
 #include <cord_flow/action/cord_action.h>
 #include <cord_error.h>
 
-#define MTU_SIZE 1420
+#define MTU_SIZE 1400
 #define ETHERNET_HEADER_SIZE 14
 #define DOT1Q_TAG_SIZE 4
 
