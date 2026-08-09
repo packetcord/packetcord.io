@@ -3,7 +3,7 @@ set(CMAKE_C_STANDARD        23 CACHE STRING "" FORCE)
 set(CMAKE_C_STANDARD_REQUIRED ON   CACHE BOOL   "" FORCE)
 set(CMAKE_C_EXTENSIONS      OFF  CACHE BOOL   "" FORCE)
 
-# apps/l3_tunnel/CMakeLists.txt
+# apps/l3_tcp_tunnel/CMakeLists.txt
 add_executable(l3_tunnel_tep_c_app l3_tunnel_tep_c_main.c)
 add_executable(l3_tunnel_tep_s_app l3_tunnel_tep_s_main.c)
 
