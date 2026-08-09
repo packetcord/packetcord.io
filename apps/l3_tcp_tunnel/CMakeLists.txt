@@ -4,30 +4,30 @@ set(CMAKE_C_STANDARD_REQUIRED ON   CACHE BOOL   "" FORCE)
 set(CMAKE_C_EXTENSIONS      OFF  CACHE BOOL   "" FORCE)
 
 # apps/l3_tcp_tunnel/CMakeLists.txt
-add_executable(l3_tunnel_tep_c_app l3_tunnel_tep_c_main.c)
-add_executable(l3_tunnel_tep_s_app l3_tunnel_tep_s_main.c)
+add_executable(l3_tcp_tunnel_tep_c_app l3_tcp_tunnel_tep_c_main.c)
+add_executable(l3_tcp_tunnel_tep_s_app l3_tcp_tunnel_tep_s_main.c)
 
 # Link against cord-flow (and cord-crypto if needed)
-target_link_libraries(l3_tunnel_tep_c_app
+target_link_libraries(l3_tcp_tunnel_tep_c_app
     PRIVATE
         cord_flow
         cord_crypto   # remove if not using crypto
 )
 
-target_link_libraries(l3_tunnel_tep_s_app
+target_link_libraries(l3_tcp_tunnel_tep_s_app
     PRIVATE
         cord_flow
         cord_crypto   # remove if not using crypto
 )
 
 # Include paths for headers
-target_include_directories(l3_tunnel_tep_c_app
+target_include_directories(l3_tcp_tunnel_tep_c_app
     PRIVATE
         ${CMAKE_SOURCE_DIR}/modules/cord-flow/include
         ${CMAKE_SOURCE_DIR}/modules/cord-crypto/include
 )
 
-target_include_directories(l3_tunnel_tep_s_app
+target_include_directories(l3_tcp_tunnel_tep_s_app
     PRIVATE
         ${CMAKE_SOURCE_DIR}/modules/cord-flow/include
         ${CMAKE_SOURCE_DIR}/modules/cord-crypto/include

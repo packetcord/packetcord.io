@@ -69,10 +69,10 @@ if(ENABLE_XDP_DATAPLANE)
   add_subdirectory(apps/l2_xdp_patch_workers)
 endif()
 
-add_subdirectory(apps/l3_tunnel)
-add_subdirectory(apps/l3_pseudo_tunnel)
+add_subdirectory(apps/l3_udp_tunnel)
 add_subdirectory(apps/l3_tcp_tunnel)
 add_subdirectory(apps/l3_sctp_tunnel)
+add_subdirectory(apps/l3_pseudo_tunnel)
 
 add_subdirectory(tests/cam_test)
 add_subdirectory(tests/lpm_test)
