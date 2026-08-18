@@ -74,5 +74,11 @@ add_subdirectory(apps/l3_tcp_tunnel)
 add_subdirectory(apps/l3_sctp_tunnel)
 add_subdirectory(apps/l3_pseudo_tunnel)
 
+if(ENABLE_OPENCL)
+  add_subdirectory(apps/ids)
+endif()
+
+#add_subdirectory(apps/ids_conntrack)
+
 add_subdirectory(tests/cam_test)
 add_subdirectory(tests/lpm_test)
