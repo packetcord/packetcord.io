@@ -4,8 +4,8 @@ set(CMAKE_C_STANDARD_REQUIRED ON   CACHE BOOL   "" FORCE)
 set(CMAKE_C_EXTENSIONS      OFF  CACHE BOOL   "" FORCE)
 
 # apps/ids/CMakeLists.txt
-add_executable(ids_app
-    ids_main.c
+add_executable(ids_opencl_app
+    ids_opencl_main.c
     src/signature_ocl_matrix.c
 )
 
@@ -13,29 +13,29 @@ add_executable(ids_app
 find_package(OpenCL REQUIRED)
 
 # Compile definitions
-target_compile_definitions(ids_app
+target_compile_definitions(ids_opencl_app
     PRIVATE
         CL_TARGET_OPENCL_VERSION=120
         _GNU_SOURCE
 )
 
 # Link against cord-flow and OpenCL
-target_link_libraries(ids_app
+target_link_libraries(ids_opencl_app
     PRIVATE
         cord_flow
         OpenCL::OpenCL
 )
 
 # Include paths for headers
-target_include_directories(ids_app
+target_include_directories(ids_opencl_app
     PRIVATE
         ${CMAKE_SOURCE_DIR}/modules/cord-flow/include
         ${CMAKE_CURRENT_SOURCE_DIR}/includes
 )
 
 # Copy OpenCL kernel to build directory
-add_custom_command(TARGET ids_app POST_BUILD
+add_custom_command(TARGET ids_opencl_app POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_SOURCE_DIR}/src/vecMatchKernel.cl
-        $<TARGET_FILE_DIR:ids_app>/vecMatchKernel.cl
+        $<TARGET_FILE_DIR:ids_opencl_app>/vecMatchKernel.cl
 )

@@ -75,7 +75,7 @@ add_subdirectory(apps/l3_sctp_tunnel)
 add_subdirectory(apps/l3_pseudo_tunnel)
 
 if(ENABLE_OPENCL)
-  add_subdirectory(apps/ids)
+  add_subdirectory(apps/ids_opencl)
 endif()
 
 #add_subdirectory(apps/ids_conntrack)
