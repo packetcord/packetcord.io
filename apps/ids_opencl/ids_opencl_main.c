@@ -12,9 +12,10 @@
 #include "signature_ocl_matrix.h"
 #include "ids_ips.h"
 
-#define BUFFER_SIZE 9000
-
+#define BUFFER_SIZE 1500
 #define ETH_IFACE_A_NAME "eno1"
+
+#define LOG_SEPARATOR "_______________________________\n"
 
 static struct
 {
@@ -92,7 +93,7 @@ static void handle_packet(uint8_t *buffer, size_t len)
         for (uint32_t i = 0; i < payload_len; i++)
             CORD_LOG("%c", payload_ptr[i]); // %.2X
 
-        CORD_LOG("_______________________________\n");
+        CORD_LOG(LOG_SEPARATOR);
 #endif
 
         goto inspect_pkt;
@@ -115,7 +116,7 @@ static void handle_packet(uint8_t *buffer, size_t len)
         for (uint32_t i = 0; i < payload_len; i++)
             CORD_LOG("%c", payload_ptr[i]); // %.2X
 
-        CORD_LOG("_______________________________\n");
+        CORD_LOG(LOG_SEPARATOR);
 #endif
 
         goto inspect_pkt;
