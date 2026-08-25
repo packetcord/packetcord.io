@@ -13,7 +13,7 @@
 #include "ids_ips.h"
 
 #define BUFFER_SIZE 1500
-#define ETH_IFACE_A_NAME "eno1"
+#define ETH_IFACE_A_NAME "veth1"
 
 #define LOG_SEPARATOR "_______________________________\n"
 
