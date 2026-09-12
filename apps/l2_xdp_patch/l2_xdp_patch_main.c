@@ -42,8 +42,8 @@ static void cord_app_cleanup(void)
 
 static void cord_app_sigint_callback(int sig)
 {
-    cord_app_cleanup();
     CORD_LOG("[CordApp] Terminating the PacketCord AF_XDP Patch App!\n");
+    cord_app_cleanup();
     CORD_ASYNC_SAFE_EXIT(CORD_OK);
 }
 
@@ -107,9 +107,6 @@ int main(void)
             CORD_FLOW_POINT_TX(cord_app_context.l2_xdp_a, 0, pkt_descs, rx_packets, &tx_packets);
         }
     }
-
-    cord_xdp_socket_free(&xsk_a);
-    cord_xdp_socket_free(&xsk_b);
 
     cord_app_cleanup();
 
