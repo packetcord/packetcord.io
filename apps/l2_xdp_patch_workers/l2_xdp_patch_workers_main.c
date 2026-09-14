@@ -5,7 +5,6 @@
 #include <match/cord_match.h>
 #include <cord_error.h>
 #include <signal.h>
-#include <errno.h>
 #include <pthread.h>
 #include <sched.h>
 #include <stdbool.h>
@@ -187,15 +186,18 @@ int main(void)
     cord_app_context.xsk_a = cord_xdp_socket_alloc(ETH_IFACE_A_NAME, 0, XDP_NUM_FRAMES, XDP_FRAME_SIZE,
                                                     XDP_RX_RING_SIZE, XDP_TX_RING_SIZE,
                                                     XDP_FILL_RING_SIZE, XDP_COMP_RING_SIZE);
-    cord_xdp_socket_init(&cord_app_context.xsk_a);
+    cord_xdp_socket_init(&cord_app_context.xsk_a, true);
 
     cord_app_context.xsk_b = cord_xdp_socket_alloc(ETH_IFACE_B_NAME, 0, XDP_NUM_FRAMES, XDP_FRAME_SIZE,
                                                     XDP_RX_RING_SIZE, XDP_TX_RING_SIZE,
                                                     XDP_FILL_RING_SIZE, XDP_COMP_RING_SIZE);
-    cord_xdp_socket_init(&cord_app_context.xsk_b);
+    cord_xdp_socket_init(&cord_app_context.xsk_b, true);
 
     cord_app_context.l2_xdp_a = CORD_CREATE_XDP_FLOW_POINT('A', &cord_app_context.xsk_a);
     cord_app_context.l2_xdp_b = CORD_CREATE_XDP_FLOW_POINT('B', &cord_app_context.xsk_b);
+
+    CORD_XDP_FLOW_POINT_FILL(cord_app_context.l2_xdp_a);
+    CORD_XDP_FLOW_POINT_FILL(cord_app_context.l2_xdp_b);
 
     if (pthread_create(&thread_a_to_b, NULL, rx_a_tx_b, NULL) != 0)
     {

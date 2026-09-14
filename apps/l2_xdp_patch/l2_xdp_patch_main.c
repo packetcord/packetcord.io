@@ -63,16 +63,19 @@ int main(void)
     xsk_a = cord_xdp_socket_alloc(ETH_IFACE_A_NAME, 0, XDP_NUM_FRAMES, XDP_FRAME_SIZE,
                                   XDP_RX_RING_SIZE, XDP_TX_RING_SIZE,
                                   XDP_FILL_RING_SIZE, XDP_COMP_RING_SIZE);
-    cord_xdp_socket_init(&xsk_a);
+    cord_xdp_socket_init(&xsk_a, true);
 
     xsk_b = cord_xdp_socket_alloc(ETH_IFACE_B_NAME, 0, XDP_NUM_FRAMES, XDP_FRAME_SIZE,
                                   XDP_RX_RING_SIZE, XDP_TX_RING_SIZE,
                                   XDP_FILL_RING_SIZE, XDP_COMP_RING_SIZE);
-    cord_xdp_socket_init(&xsk_b);
+    cord_xdp_socket_init(&xsk_b, true);
 
     cord_app_context.l2_xdp_a = CORD_CREATE_XDP_FLOW_POINT('A', &xsk_a);
     cord_app_context.l2_xdp_b = CORD_CREATE_XDP_FLOW_POINT('B', &xsk_b);
 
+    CORD_XDP_FLOW_POINT_FILL(cord_app_context.l2_xdp_a);
+    CORD_XDP_FLOW_POINT_FILL(cord_app_context.l2_xdp_b);
+    
     cord_app_context.evh = CORD_CREATE_LINUX_API_EVENT_HANDLER('E', -1);
 
     cord_retval = CORD_EVENT_HANDLER_REGISTER_FLOW_POINT(cord_app_context.evh, cord_app_context.l2_xdp_a);
