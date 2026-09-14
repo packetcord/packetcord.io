@@ -48,7 +48,7 @@ static void cord_app_cleanup(void)
 static void cord_app_sigint_callback(int sig)
 {
     (void)sig;
-    CORD_LOG("[CordApp] Terminating the PacketCord AF_XDP Patch App!\n");
+    CORD_LOG("[CordApp] Terminating the PacketCord AF_XDP eBPF Attach App!\n");
     cord_app_cleanup();
     CORD_ASYNC_SAFE_EXIT(CORD_OK);
 }
@@ -62,7 +62,7 @@ int main(void)
     ssize_t rx_packets = 0;
     ssize_t tx_packets = 0;
 
-    CORD_LOG("[CordApp] Launching the PacketCord AF_XDP Patch App (Shared UMEM)!\n");
+    CORD_LOG("[CordApp] Launching the PacketCord AF_XDP eBPF Attach App (Shared UMEM)!\n");
 
     signal(SIGINT, cord_app_sigint_callback);
 
@@ -86,12 +86,14 @@ int main(void)
     cord_app_context.l2_xdp_a = CORD_CREATE_XDP_FLOW_POINT('A', &xsk_a);
     cord_app_context.l2_xdp_b = CORD_CREATE_XDP_FLOW_POINT('B', &xsk_b);
 
-    CORD_FLOW_POINT_ATTACH_EBPF_PROGRAM(cord_app_context.l2_xdp_a, cord_app_context.bpf_prog, NULL);
-    CORD_FLOW_POINT_ATTACH_EBPF_PROGRAM(cord_app_context.l2_xdp_b, cord_app_context.bpf_prog, NULL);
-
     CORD_XDP_FLOW_POINT_FILL(cord_app_context.l2_xdp_a);
     CORD_XDP_FLOW_POINT_FILL(cord_app_context.l2_xdp_b);
+
+    CORD_FLOW_POINT_ATTACH_EBPF_PROGRAM(cord_app_context.l2_xdp_a, cord_app_context.bpf_prog, NULL);
+    CORD_FLOW_POINT_ATTACH_EBPF_PROGRAM(cord_app_context.l2_xdp_b, cord_app_context.bpf_prog, NULL);
     
+    while(1);
+
     cord_app_cleanup();
 
     return CORD_OK;
