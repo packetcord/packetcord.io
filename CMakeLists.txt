@@ -52,7 +52,7 @@ add_subdirectory(apps/l2_patch)
 add_subdirectory(apps/l2_patch_cbpf)
 
 if(ENABLE_EBPF)
-  add_subdirectory(apps/l2_patch_ebpf)      # See the instructions at the beginnig of l2_patch_ebpf_main.c to build the eBPF part
+  add_subdirectory(apps/l2_patch_ebpf) # See the instructions at the beginnig of l2_patch_ebpf_main.c to build the eBPF part
 endif()
 
 add_subdirectory(apps/l2_patch_workers)
@@ -69,7 +69,7 @@ if(ENABLE_XDP_DATAPLANE)
   add_subdirectory(apps/l2_xdp_patch_workers)
 
   if(ENABLE_EBPF)
-    add_subdirectory(apps/l2_xdp_patch_ebpf)  # See the instructions at the beginnig of l2_xdp_patch_ebpf_main.c to build the eBPF part
+    add_subdirectory(apps/l2_xdp_ebpf) # See the instructions at the beginnig of l2_xdp_patch_ebpf_main.c to build the eBPF part
   endif()
 endif()
 
@@ -81,8 +81,6 @@ add_subdirectory(apps/l3_pseudo_tunnel)
 if(ENABLE_OPENCL)
   add_subdirectory(apps/ids_opencl)
 endif()
-
-#add_subdirectory(apps/ids_conntrack)
 
 add_subdirectory(tests/cam_test)
 add_subdirectory(tests/lpm_test)

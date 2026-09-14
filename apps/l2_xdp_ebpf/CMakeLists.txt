@@ -7,32 +7,32 @@ set(CMAKE_C_EXTENSIONS      OFF  CACHE BOOL   "" FORCE)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBBPF REQUIRED libbpf)
 
-# apps/l2_xdp_patch_ebpf/CMakeLists.txt
-add_executable(l2_xdp_patch_ebpf_app l2_xdp_patch_ebpf_main.c)
+# apps/l2_xdp_ebpf/CMakeLists.txt
+add_executable(l2_xdp_ebpf_app l2_xdp_ebpf_main.c)
 
 # Link against cord-flow and LibBPF variables
-target_link_libraries(l2_xdp_patch_ebpf_app
+target_link_libraries(l2_xdp_ebpf_app
     PRIVATE
         cord_flow
         ${LIBBPF_LIBRARIES}     # Resolves to 'bpf' (which passes -lbpf safely!)
 )
 
 # Include paths for headers
-target_include_directories(l2_xdp_patch_ebpf_app
+target_include_directories(l2_xdp_ebpf_app
     PRIVATE
         ${CMAKE_SOURCE_DIR}/modules/cord-flow/include
         ${LIBBPF_INCLUDE_DIRS}   # Automatically finds where bpf/libbpf.h lives
 )
 
 # Add LibBPF compile options (just in case pkg-config provides any)
-target_compile_definitions(l2_xdp_patch_ebpf_app
+target_compile_definitions(l2_xdp_ebpf_app
     PRIVATE
         ${LIBBPF_CFLAGS_OTHER}
         ENABLE_XDP_DATAPLANE
 )
 
 # Add LibBPF link directories so GCC knows where the library file lives
-target_link_directories(l2_xdp_patch_ebpf_app
+target_link_directories(l2_xdp_ebpf_app
     PRIVATE
         ${LIBBPF_LIBRARY_DIRS}
 )

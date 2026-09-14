@@ -11,13 +11,9 @@
 #include <match/cord_match.h>
 #include <cord_error.h>
 #include <signal.h>
-#include <errno.h>
 
-#define ETH_IFACE_A_NAME "veth1"
-#define ETH_IFACE_B_NAME "veth2"
-
-//#define ETH_IFACE_A_NAME "enp11s0f0np0"
-//#define ETH_IFACE_B_NAME "enp11s0f1np1"
+#define ETH_IFACE_A_NAME "enp11s0f0np0"
+#define ETH_IFACE_B_NAME "enp11s0f1np1"
 
 #define XDP_NUM_FRAMES 4096
 #define XDP_FRAME_SIZE 4096
@@ -95,40 +91,6 @@ int main(void)
 
     CORD_XDP_FLOW_POINT_FILL(cord_app_context.l2_xdp_a);
     CORD_XDP_FLOW_POINT_FILL(cord_app_context.l2_xdp_b);
-
-    cord_app_context.evh = CORD_CREATE_LINUX_API_EVENT_HANDLER('E', -1);
-
-    cord_retval = CORD_EVENT_HANDLER_REGISTER_FLOW_POINT(cord_app_context.evh, cord_app_context.l2_xdp_a);
-    cord_retval = CORD_EVENT_HANDLER_REGISTER_FLOW_POINT(cord_app_context.evh, cord_app_context.l2_xdp_b);
-    (void)cord_retval;
-
-    while (1)
-    {
-        int nb_fds = CORD_EVENT_HANDLER_WAIT(cord_app_context.evh);
-
-        if (nb_fds == -1)
-        {
-            if (errno == EINTR)
-                continue;
-            else
-            {
-                CORD_ERROR("[CordApp] Error: CORD_EVENT_HANDLER_WAIT()");
-                CORD_EXIT(CORD_ERR);
-            }
-        }
-
-        CORD_FLOW_POINT_RX(cord_app_context.l2_xdp_a, 0, pkt_descs, BURST_SIZE, &rx_packets);
-        if (rx_packets > 0)
-        {
-            CORD_FLOW_POINT_TX(cord_app_context.l2_xdp_b, 0, pkt_descs, rx_packets, &tx_packets);
-        }
-
-        CORD_FLOW_POINT_RX(cord_app_context.l2_xdp_b, 0, pkt_descs, BURST_SIZE, &rx_packets);
-        if (rx_packets > 0)
-        {
-            CORD_FLOW_POINT_TX(cord_app_context.l2_xdp_a, 0, pkt_descs, rx_packets, &tx_packets);
-        }
-    }
     
     cord_app_cleanup();
 
