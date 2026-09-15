@@ -1,9 +1,18 @@
 //
-// # 1. Compile the eBPF C code into BPF bytecode using Clang
+// # Compile the eBPF C code into BPF bytecode using Clang
 // clang -g -O2 -target bpf -c l2_patch_ebpf.bpf.c -o l2_patch_ebpf.bpf.o
 //
-// # 2. Generate the user-space skeleton header from that bytecode
+// # Generate the user-space skeleton header from that bytecode
 // bpftool gen skeleton l2_patch_ebpf.bpf.o > l2_patch_ebpf.skel.h
+//
+// # Copy to the container (container name is `container_2` in the below command)
+// docker cp l2_patch_ebpf.bpf.o container_2:/root/
+//
+// # Check if BPF FS is mounted (inside the container)
+// cat /proc/mounts | grep 'bpf'
+//
+// # If not, mount the BPF FS (inside the container)
+// mount -t bpf bpf /sys/fs/bpf
 //
 
 #include <cord_flow/event_handler/cord_linux_api_event_handler.h>

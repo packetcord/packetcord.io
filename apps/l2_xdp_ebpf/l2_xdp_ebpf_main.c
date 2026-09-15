@@ -1,6 +1,15 @@
 //
-// # 1. Compile the eBPF C code into BPF bytecode using Clang
+// # Compile the eBPF C code into BPF bytecode using Clang
 // clang -g -O2 -target bpf -c xdp_shared_umem.bpf.c -o xdp_shared_umem.bpf.o
+//
+// # Copy to the container (container name is `container_2` in the below command)
+// docker cp xdp_shared_umem.bpf.o container_2:/root/
+//
+// # Check if BPF FS is mounted (inside the container)
+// cat /proc/mounts | grep 'bpf'
+//
+// # If not, mount the BPF FS (inside the container)
+// mount -t bpf bpf /sys/fs/bpf
 //
 
 #ifdef ENABLE_XDP_DATAPLANE
