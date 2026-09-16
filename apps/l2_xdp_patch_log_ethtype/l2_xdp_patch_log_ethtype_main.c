@@ -98,29 +98,40 @@ int main(void)
             }
         }
 
-        CORD_FLOW_POINT_RX(cord_app_context.l2_xdp_a, 0, pkt_descs, BURST_SIZE, &rx_packets);
-        if (rx_packets > 0)
+        for (uint8_t n = 0; n < nb_fds; n++)
         {
-            for (ssize_t n = 0; n < rx_packets; n++)
+            // A ---> B
+            if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_xdp_a->io_handle)
             {
-                uint8_t *pkt_data = (uint8_t *)pkt_descs[n].data;
-                uint32_t pkt_len  = pkt_descs[n].len;
-
-                if (pkt_len >= sizeof(cord_eth_hdr_t))
+                CORD_FLOW_POINT_RX(cord_app_context.l2_xdp_a, 0, pkt_descs, BURST_SIZE, &rx_packets);
+                if (rx_packets > 0)
                 {
-                    cord_eth_hdr_t *eth = cord_header_eth(pkt_data);
-                    uint16_t eth_type_field = cord_get_field_eth_type_ntohs(eth);
-                    CORD_LOG("[CordApp] Log (EthType): 0x%04X\n", eth_type_field);
+                    for (ssize_t n = 0; n < rx_packets; n++)
+                    {
+                        uint8_t *pkt_data = (uint8_t *)pkt_descs[n].data;
+                        uint32_t pkt_len  = pkt_descs[n].len;
+
+                        if (pkt_len >= sizeof(cord_eth_hdr_t))
+                        {
+                            cord_eth_hdr_t *eth = cord_header_eth(pkt_data);
+                            uint16_t eth_type_field = cord_get_field_eth_type_ntohs(eth);
+                            CORD_LOG("[CordApp] Log (EthType): 0x%04X\n", eth_type_field);
+                        }
+                    }
+
+                    CORD_FLOW_POINT_TX(cord_app_context.l2_xdp_b, 0, pkt_descs, rx_packets, &tx_packets);
                 }
             }
 
-            CORD_FLOW_POINT_TX(cord_app_context.l2_xdp_b, 0, pkt_descs, rx_packets, &tx_packets);
-        }
-
-        CORD_FLOW_POINT_RX(cord_app_context.l2_xdp_b, 0, pkt_descs, BURST_SIZE, &rx_packets);
-        if (rx_packets > 0)
-        {
-            CORD_FLOW_POINT_TX(cord_app_context.l2_xdp_a, 0, pkt_descs, rx_packets, &tx_packets);
+            // B ---> A
+            if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_xdp_b->io_handle)
+            {
+                CORD_FLOW_POINT_RX(cord_app_context.l2_xdp_b, 0, pkt_descs, BURST_SIZE, &rx_packets);
+                if (rx_packets > 0)
+                {
+                    CORD_FLOW_POINT_TX(cord_app_context.l2_xdp_a, 0, pkt_descs, rx_packets, &tx_packets);
+                }
+            }
         }
     }
 

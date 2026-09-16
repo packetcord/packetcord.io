@@ -76,9 +76,7 @@ int main(void)
 
         for (uint8_t n = 0; n < nb_fds; n++)
         {
-            //
             // A ---> B
-            //
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_a->io_handle)
             {
                 cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, 0, buffer, BUFFER_SIZE, &rx_bytes);
@@ -98,9 +96,7 @@ int main(void)
                 }
             }
 
-            //
             // B ---> A
-            //
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_b->io_handle)
             {
                 cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, 0, buffer, BUFFER_SIZE, &rx_bytes);

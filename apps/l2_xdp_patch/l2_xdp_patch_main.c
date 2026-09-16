@@ -98,16 +98,27 @@ int main(void)
             }
         }
 
-        CORD_FLOW_POINT_RX(cord_app_context.l2_xdp_a, 0, pkt_descs, BURST_SIZE, &rx_packets);
-        if (rx_packets > 0)
+        for (uint8_t n = 0; n < nb_fds; n++)
         {
-            CORD_FLOW_POINT_TX(cord_app_context.l2_xdp_b, 0, pkt_descs, rx_packets, &tx_packets);
-        }
+            // A ---> B
+            if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_xdp_a->io_handle)
+            {
+                CORD_FLOW_POINT_RX(cord_app_context.l2_xdp_a, 0, pkt_descs, BURST_SIZE, &rx_packets);
+                if (rx_packets > 0)
+                {
+                    CORD_FLOW_POINT_TX(cord_app_context.l2_xdp_b, 0, pkt_descs, rx_packets, &tx_packets);
+                }
+            }
 
-        CORD_FLOW_POINT_RX(cord_app_context.l2_xdp_b, 0, pkt_descs, BURST_SIZE, &rx_packets);
-        if (rx_packets > 0)
-        {
-            CORD_FLOW_POINT_TX(cord_app_context.l2_xdp_a, 0, pkt_descs, rx_packets, &tx_packets);
+            // B ---> A
+            if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_xdp_b->io_handle)
+            {
+                CORD_FLOW_POINT_RX(cord_app_context.l2_xdp_b, 0, pkt_descs, BURST_SIZE, &rx_packets);
+                if (rx_packets > 0)
+                {
+                    CORD_FLOW_POINT_TX(cord_app_context.l2_xdp_a, 0, pkt_descs, rx_packets, &tx_packets);
+                }
+            }
         }
     }
 

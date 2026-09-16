@@ -82,7 +82,7 @@ int main(void)
 
         for (uint8_t n = 0; n < nb_fds; n++)
         {
-            // A -> B
+            // A ---> B
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_a->io_handle)
             {
                 CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, UNUSED_ARG, &rx_ring_a, UNUSED_ARG, &rx_packets);
@@ -111,7 +111,7 @@ int main(void)
                 }
             }
 
-            // B -> A
+            // B ---> A
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_b->io_handle)
             {
                 CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, UNUSED_ARG, &rx_ring_b, UNUSED_ARG, &rx_packets);
