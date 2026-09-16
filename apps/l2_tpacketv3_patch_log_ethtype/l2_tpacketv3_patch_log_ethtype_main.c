@@ -88,6 +88,33 @@ int main(void)
                 CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, UNUSED_ARG, &rx_ring_a, UNUSED_ARG, &rx_blocks);
                 if (rx_blocks > 0)
                 {
+                    for (ssize_t b = 0; b < rx_blocks; b++)
+                    {
+                        struct tpacket_block_desc *block_desc = (struct tpacket_block_desc *)rx_ring_a->iov_ring[b].iov_base;
+                        uint32_t pkts_in_block = block_desc->hdr.bh1.num_pkts;
+                        
+                        if (pkts_in_block == 0)
+                            continue;
+
+                        struct tpacket3_hdr *frame_hdr = (struct tpacket3_hdr *)((uint8_t *)block_desc + block_desc->hdr.bh1.offset_to_first_pkt);
+
+                        for (uint32_t p = 0; p < pkts_in_block; p++)
+                        {
+                            uint8_t *pkt_data = (uint8_t *)frame_hdr + frame_hdr->tp_mac;
+
+                            cord_eth_hdr_t *eth = cord_header_eth(pkt_data);
+                            uint16_t eth_type_field = cord_get_field_eth_type_ntohs(eth);
+
+                            CORD_LOG("[CordApp] Log (EthType): 0x%04X (Block %zd/%zd, Pkt %u/%u, Len: %u)\n", 
+                                    eth_type_field, b + 1, rx_blocks, p + 1, pkts_in_block, frame_hdr->tp_snaplen);
+
+                            if (frame_hdr->tp_next_offset == 0)
+                                break;
+
+                            frame_hdr = (struct tpacket3_hdr *)((uint8_t *)frame_hdr + frame_hdr->tp_next_offset);
+                        }                        
+                    }
+
                     CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, UNUSED_ARG, &rx_ring_a, rx_blocks, &tx_blocks);
                 }
             }

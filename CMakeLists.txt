@@ -58,6 +58,7 @@ endif()
 
 add_subdirectory(apps/l2_patch_workers)
 add_subdirectory(apps/l2_tpacketv3_patch)
+add_subdirectory(apps/l2_tpacketv3_patch_log_ethtype)
 add_subdirectory(apps/l2_tpacketv3_patch_workers)
 
 if(ENABLE_DPDK_DATAPLANE)
