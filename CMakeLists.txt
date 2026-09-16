@@ -49,6 +49,7 @@ set(CMAKE_C_EXTENSIONS OFF CACHE BOOL "" FORCE)
 add_subdirectory(apps/l2_switch)
 add_subdirectory(apps/l3_router)
 add_subdirectory(apps/l2_patch)
+add_subdirectory(apps/l2_patch_log_ethtype)
 add_subdirectory(apps/l2_patch_cbpf)
 
 if(ENABLE_EBPF)
