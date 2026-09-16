@@ -6,7 +6,6 @@
 #include <match/cord_match.h>
 #include <cord_error.h>
 #include <signal.h>
-#include <errno.h>
 
 #define ETH_IFACE_A_NAME "veth1"
 #define ETH_IFACE_B_NAME "veth2"

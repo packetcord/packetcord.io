@@ -56,10 +56,8 @@ if(ENABLE_EBPF)
   add_subdirectory(apps/l2_patch_ebpf) # See the instructions at the beginnig of l2_patch_ebpf_main.c to build the eBPF part
 endif()
 
-add_subdirectory(apps/l2_patch_workers)
 add_subdirectory(apps/l2_tpacketv3_patch)
 add_subdirectory(apps/l2_tpacketv3_patch_log_ethtype)
-add_subdirectory(apps/l2_tpacketv3_patch_workers)
 
 if(ENABLE_DPDK_DATAPLANE)
   add_subdirectory(apps/l2_dpdk_patch)
@@ -69,7 +67,6 @@ endif()
 if(ENABLE_XDP_DATAPLANE)
   add_subdirectory(apps/l2_xdp_patch)
   add_subdirectory(apps/l2_xdp_patch_log_ethtype)
-  add_subdirectory(apps/l2_xdp_patch_workers)
 
   if(ENABLE_EBPF)
     add_subdirectory(apps/l2_xdp_ebpf) # See the instructions at the beginnig of l2_xdp_patch_ebpf_main.c to build the eBPF part
