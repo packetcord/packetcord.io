@@ -67,6 +67,7 @@ endif()
 
 if(ENABLE_XDP_DATAPLANE)
   add_subdirectory(apps/l2_xdp_patch)
+  add_subdirectory(apps/l2_xdp_patch_log_ethtype)
   add_subdirectory(apps/l2_xdp_patch_workers)
 
   if(ENABLE_EBPF)
