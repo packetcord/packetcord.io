@@ -114,7 +114,9 @@ int main(void)
                         {
                             cord_eth_hdr_t *eth = cord_header_eth(pkt_data);
                             uint16_t eth_type_field = cord_get_field_eth_type_ntohs(eth);
-                            CORD_LOG("[CordApp] Log (EthType): 0x%04X\n", eth_type_field);
+                            
+                            CORD_LOG("[CordApp] Log (EthType): 0x%04X (Pkt %zu/%zu, Len: %u)\n",
+                                eth_type_field, n + 1, rx_packets, pkt_len);
                         }
                     }
 

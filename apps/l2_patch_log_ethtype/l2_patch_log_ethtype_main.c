@@ -95,7 +95,7 @@ int main(void)
                 // Log EthType
                 cord_eth_hdr_t *eth = cord_header_eth(buffer);
                 uint16_t eth_type_field = cord_get_field_eth_type_ntohs(eth);
-                CORD_LOG("[CordApp] Log (EthType): 0x%04X\n", eth_type_field);
+                CORD_LOG("[CordApp] Log (EthType): 0x%04X (Len: %lu)\n", eth_type_field, rx_bytes);
 
                 cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, 0, buffer, rx_bytes, &tx_bytes);
                 if (cord_retval != CORD_OK)

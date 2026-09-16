@@ -90,7 +90,7 @@ int main(void)
                     struct tpacket_block_desc *block_desc = (struct tpacket_block_desc *)rx_ring_a->iov_ring[rx_ring_a->block_idx].iov_base;
                     struct tpacket3_hdr *frame_hdr = (struct tpacket3_hdr *)((uint8_t *)block_desc + block_desc->hdr.bh1.offset_to_first_pkt);
 
-                    for (ssize_t p = 0; p < rx_packets; p++)
+                    for (ssize_t n = 0; n < rx_packets; n++)
                     {
                         uint8_t *pkt_data = (uint8_t *)frame_hdr + frame_hdr->tp_mac;
 
@@ -98,7 +98,7 @@ int main(void)
                         uint16_t eth_type_field = cord_get_field_eth_type_ntohs(eth);
 
                         CORD_LOG("[CordApp] Log (EthType): 0x%04X (Block %u, Pkt %zu/%lu, Len: %u)\n", 
-                                eth_type_field, rx_ring_a->block_idx, p + 1, rx_packets, frame_hdr->tp_snaplen);
+                                eth_type_field, rx_ring_a->block_idx, n + 1, rx_packets, frame_hdr->tp_snaplen);
 
                         if (frame_hdr->tp_next_offset == 0)
                             break;

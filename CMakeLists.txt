@@ -61,6 +61,7 @@ add_subdirectory(apps/l2_tpacketv3_patch_log_ethtype)
 
 if(ENABLE_DPDK_DATAPLANE)
   add_subdirectory(apps/l2_dpdk_patch)
+  add_subdirectory(apps/l2_dpdk_patch_log_ethtype)
   add_subdirectory(apps/l2_dpdk_patch_workers)
 endif()
 
