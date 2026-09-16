@@ -45,8 +45,8 @@ int main(void)
     cord_retval_t cord_retval;
     struct cord_tpacketv3_ring *rx_ring_a;
     struct cord_tpacketv3_ring *rx_ring_b;
-    ssize_t rx_blocks = 0;
-    ssize_t tx_blocks = 0;
+    ssize_t rx_packets = 0;
+    ssize_t tx_packets = 0;
 
     CORD_LOG("[CordApp] Launching the PacketCord TPACKET_V3 Patch App!\n");
 
@@ -85,47 +85,39 @@ int main(void)
             // A -> B
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_a->io_handle)
             {
-                CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, UNUSED_ARG, &rx_ring_a, UNUSED_ARG, &rx_blocks);
-                if (rx_blocks > 0)
+                CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, UNUSED_ARG, &rx_ring_a, UNUSED_ARG, &rx_packets);
+                if (rx_packets > 0)
                 {
-                    for (ssize_t b = 0; b < rx_blocks; b++)
+                    struct tpacket_block_desc *block_desc = (struct tpacket_block_desc *)rx_ring_a->iov_ring[rx_ring_a->block_idx].iov_base;
+                    struct tpacket3_hdr *frame_hdr = (struct tpacket3_hdr *)((uint8_t *)block_desc + block_desc->hdr.bh1.offset_to_first_pkt);
+
+                    for (ssize_t p = 0; p < rx_packets; p++)
                     {
-                        struct tpacket_block_desc *block_desc = (struct tpacket_block_desc *)rx_ring_a->iov_ring[b].iov_base;
-                        uint32_t pkts_in_block = block_desc->hdr.bh1.num_pkts;
-                        
-                        if (pkts_in_block == 0)
-                            continue;
+                        uint8_t *pkt_data = (uint8_t *)frame_hdr + frame_hdr->tp_mac;
 
-                        struct tpacket3_hdr *frame_hdr = (struct tpacket3_hdr *)((uint8_t *)block_desc + block_desc->hdr.bh1.offset_to_first_pkt);
+                        cord_eth_hdr_t *eth = cord_header_eth(pkt_data);
+                        uint16_t eth_type_field = cord_get_field_eth_type_ntohs(eth);
 
-                        for (uint32_t p = 0; p < pkts_in_block; p++)
-                        {
-                            uint8_t *pkt_data = (uint8_t *)frame_hdr + frame_hdr->tp_mac;
+                        CORD_LOG("[CordApp] Log (EthType): 0x%04X (Block %u, Pkt %zu/%lu, Len: %u)\n", 
+                                eth_type_field, rx_ring_a->block_idx, p + 1, rx_packets, frame_hdr->tp_snaplen);
 
-                            cord_eth_hdr_t *eth = cord_header_eth(pkt_data);
-                            uint16_t eth_type_field = cord_get_field_eth_type_ntohs(eth);
+                        if (frame_hdr->tp_next_offset == 0)
+                            break;
 
-                            CORD_LOG("[CordApp] Log (EthType): 0x%04X (Block %zd/%zd, Pkt %u/%u, Len: %u)\n", 
-                                    eth_type_field, b + 1, rx_blocks, p + 1, pkts_in_block, frame_hdr->tp_snaplen);
-
-                            if (frame_hdr->tp_next_offset == 0)
-                                break;
-
-                            frame_hdr = (struct tpacket3_hdr *)((uint8_t *)frame_hdr + frame_hdr->tp_next_offset);
-                        }                        
+                        frame_hdr = (struct tpacket3_hdr *)((uint8_t *)frame_hdr + frame_hdr->tp_next_offset);
                     }
 
-                    CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, UNUSED_ARG, &rx_ring_a, rx_blocks, &tx_blocks);
+                    CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, UNUSED_ARG, &rx_ring_a, rx_packets, &tx_packets);
                 }
             }
 
             // B -> A
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_b->io_handle)
             {
-                CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, UNUSED_ARG, &rx_ring_b, UNUSED_ARG, &rx_blocks);
-                if (rx_blocks > 0)
+                CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, UNUSED_ARG, &rx_ring_b, UNUSED_ARG, &rx_packets);
+                if (rx_packets > 0)
                 {
-                    CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, UNUSED_ARG, &rx_ring_b, rx_blocks, &tx_blocks);
+                    CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, UNUSED_ARG, &rx_ring_b, rx_packets, &tx_packets);
                 }
             }
         }

@@ -45,8 +45,8 @@ int main(void)
     cord_retval_t cord_retval;
     struct cord_tpacketv3_ring *rx_ring_a;
     struct cord_tpacketv3_ring *rx_ring_b;
-    ssize_t rx_blocks = 0;
-    ssize_t tx_blocks = 0;
+    ssize_t rx_packets = 0;
+    ssize_t tx_packets = 0;
 
     CORD_LOG("[CordApp] Launching the PacketCord TPACKET_V3 Patch App!\n");
 
@@ -85,20 +85,20 @@ int main(void)
             // A -> B
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_a->io_handle)
             {
-                CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, UNUSED_ARG, &rx_ring_a, UNUSED_ARG, &rx_blocks);
-                if (rx_blocks > 0)
+                CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, UNUSED_ARG, &rx_ring_a, UNUSED_ARG, &rx_packets);
+                if (rx_packets > 0)
                 {
-                    CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, UNUSED_ARG, &rx_ring_a, rx_blocks, &tx_blocks);
+                    CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, UNUSED_ARG, &rx_ring_a, rx_packets, &tx_packets);
                 }
             }
 
             // B -> A
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_b->io_handle)
             {
-                CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, UNUSED_ARG, &rx_ring_b, UNUSED_ARG, &rx_blocks);
-                if (rx_blocks > 0)
+                CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, UNUSED_ARG, &rx_ring_b, UNUSED_ARG, &rx_packets);
+                if (rx_packets > 0)
                 {
-                    CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, UNUSED_ARG, &rx_ring_b, rx_blocks, &tx_blocks);
+                    CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, UNUSED_ARG, &rx_ring_b, rx_packets, &tx_packets);
                 }
             }
         }
