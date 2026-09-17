@@ -27,10 +27,8 @@
 #include "l2_patch_ebpf.skel.h"
 
 #define MTU_SIZE 1500
-#define ETHERNET_HEADER_SIZE 14
-#define DOT1Q_TAG_SIZE 4
 
-#define BUFFER_SIZE (MTU_SIZE + ETHERNET_HEADER_SIZE)
+#define BUFFER_SIZE (MTU_SIZE + CORD_RAW_HEADROOM)
 
 #define ETH_IFACE_A_NAME "veth1"
 #define ETH_IFACE_B_NAME "veth2"
@@ -90,7 +88,11 @@ static int sample_callback(void *ctx, void *data, size_t data_size)
 int main(void)
 {
     cord_retval_t cord_retval;
+
     CORD_BUFFER(buffer, BUFFER_SIZE);
+    cord_raw_pkt_desc_t pkt_desc;
+    cord_raw_pkt_init(&pkt_desc, buffer);
+
     size_t rx_bytes = 0;
     size_t tx_bytes = 0;
 
@@ -155,7 +157,7 @@ int main(void)
             //
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_a->io_handle)
             {
-                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, 0, buffer, BUFFER_SIZE, &rx_bytes);
+                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_a, 0, pkt_desc.data, BUFFER_SIZE, &rx_bytes);
                 if (cord_retval != CORD_OK)
                     continue; // Raw socket receive error
 
@@ -165,7 +167,7 @@ int main(void)
                 if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUD(cord_app_context.l2_eth_a) != CORD_OK)
                     continue; // Ensure this is not an outgoing packet
 
-                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, 0, buffer, rx_bytes, &tx_bytes);
+                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_b, 0, pkt_desc.data, rx_bytes, &tx_bytes);
                 if (cord_retval != CORD_OK)
                 {
                     // Handle the error
@@ -177,7 +179,7 @@ int main(void)
             //
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_eth_b->io_handle)
             {
-                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, 0, buffer, BUFFER_SIZE, &rx_bytes);
+                cord_retval = CORD_FLOW_POINT_RX(cord_app_context.l2_eth_b, 0, pkt_desc.data, BUFFER_SIZE, &rx_bytes);
                 if (cord_retval != CORD_OK)
                     continue; // Raw socket receive error
 
@@ -187,7 +189,7 @@ int main(void)
                 if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUD(cord_app_context.l2_eth_b) != CORD_OK)
                     continue; // Ensure this is not an outgoing packet
 
-                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, 0, buffer, rx_bytes, &tx_bytes);
+                cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, 0, pkt_desc.data, rx_bytes, &tx_bytes);
                 if (cord_retval != CORD_OK)
                 {
                     // Handle the error

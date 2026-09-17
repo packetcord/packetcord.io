@@ -1,6 +1,5 @@
 //
-// Important: This is a preliminary demo, so please excuse us for the style!
-//            To be re-written in a clean manner using CORF-CRAFT...
+// Note: This is a preliminary demo, to be re-written...
 //
 
 #include <cord_craft/injector/cord_l3_stack_injector.h>
