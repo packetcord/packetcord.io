@@ -19,7 +19,6 @@
 #include <memory/cord_memory.h>
 #include <match/cord_match.h>
 #include <cord_error.h>
-#include <signal.h>
 
 #define ETH_IFACE_A_NAME "enp11s0f0np0"
 #define ETH_IFACE_B_NAME "enp11s0f1np1"
