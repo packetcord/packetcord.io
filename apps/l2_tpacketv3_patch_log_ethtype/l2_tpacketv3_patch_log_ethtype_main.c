@@ -3,7 +3,6 @@
 #include <cord_flow/memory/cord_memory.h>
 #include <cord_flow/match/cord_match.h>
 #include <cord_error.h>
-#include <signal.h>
 
 #define ETH_IFACE_A_NAME "veth1"
 #define ETH_IFACE_B_NAME "veth2"
