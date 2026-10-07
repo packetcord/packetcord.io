@@ -67,6 +67,9 @@ if(ENABLE_DPDK_DATAPLANE)
 endif()
 
 if(ENABLE_XDP_DATAPLANE)
+  # The AF_XDP UDP/IP pseudo-stack
+  add_subdirectory(apps/af_xdp_udp)
+
   add_subdirectory(apps/l2_xdp_patch)
   add_subdirectory(apps/l2_xdp_patch_log_ethtype)
 
