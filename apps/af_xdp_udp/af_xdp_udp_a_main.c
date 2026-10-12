@@ -21,6 +21,15 @@
 
 #define BATCH_SIZE 3
 
+static struct
+{
+    uint64_t frame_offsets[XDP_NUM_FRAMES];
+    size_t frame_lengths[XDP_NUM_FRAMES];
+} umem_frame_tracker = {
+    .frame_offsets = { 0 },
+    .frame_lengths = { 0 },
+}; // Or probably a FIFO over this...
+
 const uint8_t *payload_arr[BATCH_SIZE] = {
     "Hello\n",
     "this is a UDP over AF_XDP\n",
@@ -52,7 +61,7 @@ static void cord_app_sigint_callback(int sig)
     CORD_ASYNC_SAFE_EXIT(CORD_OK);
 }
 
-static void af_xdp_send_single_frame(struct cord_xdp_socket_info *xdp_sock, uint64_t frame_offset, size_t frame_len)
+static void af_xdp_send_single(struct cord_xdp_socket_info *xdp_sock, uint64_t frame_offset, size_t frame_len)
 {
     // Send packet
     CORD_LOG("[CordApp] Send UDP Packet...\n");
@@ -157,32 +166,31 @@ int main(void)
 
     signal(SIGINT, cord_app_sigint_callback);
 
+    //
+    // Initialisation
+    //
     xsk_a = cord_xdp_socket_alloc(ETH_IFACE_A_NAME, 0, XDP_NUM_FRAMES, XDP_FRAME_SIZE,
                                   XDP_RX_RING_SIZE, XDP_TX_RING_SIZE,
                                   XDP_FILL_RING_SIZE, XDP_COMP_RING_SIZE);
-    cord_xdp_socket_init(&xsk_a, true);
+    cord_xdp_socket_init(&xsk_a, true); // We can also consider using shared UMEM
 
     cord_app_context.l2_xdp_a = CORD_CREATE_XDP_FLOW_POINT('A', &xsk_a);
 
-    CORD_XDP_FLOW_POINT_FILL(cord_app_context.l2_xdp_a); // We can also consider using shared UMEM (though a bit difficult)
+    CORD_XDP_FLOW_POINT_FILL(cord_app_context.l2_xdp_a);
 
-    uint64_t frame_offsets[XDP_NUM_FRAMES] = { 0 };
-    size_t frame_lengths[XDP_NUM_FRAMES] = { 0 };
-
-    uint8_t *umem_base = (uint8_t *)xsk_umem__get_data(xsk_a->umem_area, frame_offsets[0]); // Attemp this for zero-copy and change the TX() method of the XDP FlowPoint to skip memcpy()
+    uint8_t *umem_base = (uint8_t *)xsk_umem__get_data(xsk_a->umem_area, umem_frame_tracker.frame_offsets[0]); // Attemp this for zero-copy and change the TX() method of the XDP FlowPoint to skip memcpy()
     uint8_t *current_frame_base = 0;
 
     //
     // Preload crafted UDP packets inside the UMEM
     //
-    current_frame_base = umem_base;
     for (uint16_t idx = 0; idx < BATCH_SIZE; idx++)
     {
         // Calculate offsets and populate the offsets array (used for batch TX)
-        frame_offsets[idx] = (idx % XDP_NUM_FRAMES) * XDP_FRAME_SIZE; // Or even better - some FIFO-like structure to track head/tail of the UMEM frame (chunk)
+        umem_frame_tracker.frame_offsets[idx] = (idx % XDP_NUM_FRAMES) * XDP_FRAME_SIZE;
 
         // Move the base pointer
-        current_frame_base += frame_offsets[idx];
+        current_frame_base = umem_base + umem_frame_tracker.frame_offsets[idx];
 
         cord_eth_hdr_t *eth = (cord_eth_hdr_t *)current_frame_base;
         cord_ipv4_hdr_t *ip = (cord_ipv4_hdr_t *)(current_frame_base + sizeof(cord_eth_hdr_t));
@@ -215,11 +223,10 @@ int main(void)
     //
     // Foreach packet we want to send - set payload and length, calculate checksum; move the UMEM pointer to the next container
     //
-    current_frame_base = umem_base;
     for (uint16_t idx = 0; idx < BATCH_SIZE; idx++)
     {
         // Move the base pointer
-        current_frame_base += frame_offsets[idx];
+        current_frame_base = umem_base + umem_frame_tracker.frame_offsets[idx];
 
         cord_ipv4_hdr_t *ip = (cord_ipv4_hdr_t *)(current_frame_base + sizeof(cord_eth_hdr_t));
         cord_udp_hdr_t *udp = (cord_udp_hdr_t *)(current_frame_base + sizeof(cord_eth_hdr_t) + sizeof(cord_ipv4_hdr_t));
@@ -227,7 +234,7 @@ int main(void)
         // Calculate payload/packet/frame sizes
         const int payload_len = strlen((const char *)payload_arr[idx]);
         const int ip_total_len = sizeof(cord_ipv4_hdr_t) + sizeof(cord_udp_hdr_t) + payload_len;
-        frame_lengths[idx] = sizeof(cord_eth_hdr_t) + ip_total_len;
+        umem_frame_tracker.frame_lengths[idx] = sizeof(cord_eth_hdr_t) + ip_total_len;
 
         udp->len = cord_htons(sizeof(cord_udp_hdr_t) + payload_len);
 
@@ -242,11 +249,11 @@ int main(void)
 
         // Send a single UDP packet over AF_XDP
         //
-        // af_xdp_send_single_frame(xsk_a, frame_offsets[idx], frame_lengths[idx]);
+        // af_xdp_send_single(xsk_a, umem_frame_tracker.frame_offsets[idx], umem_frame_tracker.frame_lengths[idx]);
         //
     }
 
-    af_xdp_send_batch(xsk_a, frame_offsets, frame_lengths, BATCH_SIZE);
+    af_xdp_send_batch(xsk_a, umem_frame_tracker.frame_offsets, umem_frame_tracker.frame_lengths, BATCH_SIZE);
 
     cord_app_cleanup();
 
