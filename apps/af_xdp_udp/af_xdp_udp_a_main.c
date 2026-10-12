@@ -19,7 +19,9 @@
 #define XDP_FILL_RING_SIZE (XDP_NUM_FRAMES / 2)
 #define XDP_COMP_RING_SIZE (XDP_NUM_FRAMES / 2)
 
-const uint8_t *payload_arr[2] = {
+#define BATCH_SIZE 2
+
+const uint8_t *payload_arr[BATCH_SIZE] = {
     "Zero-copy UDP Crafted Packet!1!\n",
     "Zero-copy UDP Crafted Packet!2!\n"
 };
@@ -75,11 +77,6 @@ static void af_xdp_send_single_frame(struct cord_xdp_socket_info *xdp_sock, uint
         // Kick the kernel driver to start transmission
         if (xsk_ring_prod__needs_wakeup(&xdp_sock->tx))
         {
-            sendto(xsk_socket__fd(xdp_sock->xsk), NULL, 0, MSG_DONTWAIT, NULL, 0);
-        }
-        else
-        {
-            // Call sendto unconditionally if XDP_USE_NEED_WAKEUP isn't set
             sendto(xsk_socket__fd(xdp_sock->xsk), NULL, 0, MSG_DONTWAIT, NULL, 0);
         }
 
@@ -144,10 +141,6 @@ static void af_xdp_send_batch(struct cord_xdp_socket_info *xdp_sock, const uint6
     {
         sendto(xsk_socket__fd(xdp_sock->xsk), NULL, 0, MSG_DONTWAIT, NULL, 0);
     }
-    else
-    {
-        sendto(xsk_socket__fd(xdp_sock->xsk), NULL, 0, MSG_DONTWAIT, NULL, 0);
-    }
 
     CORD_LOG("[CordApp] Batch of %u packets enqueued and kernel kicked!\n", reserved);
 }
@@ -182,7 +175,7 @@ int main(void)
     // Preload crafted UDP packets inside the UMEM
     //
     current_frame_base = umem_base;
-    for (uint16_t idx = 0; idx < 2; idx++)
+    for (uint16_t idx = 0; idx < BATCH_SIZE; idx++)
     {
         // Calculate offsets and populate the offsets array (used for batch TX)
         frame_offsets[idx] = (idx % XDP_NUM_FRAMES) * XDP_FRAME_SIZE; // Or even better - some FIFO-like structure to track head/tail of the UMEM frame (chunk)
@@ -222,7 +215,7 @@ int main(void)
     // Foreach packet we want to send - set payload and length, calculate checksum; move the UMEM pointer to the next container
     //
     current_frame_base = umem_base;
-    for (uint16_t idx = 0; idx < 2; idx++)
+    for (uint16_t idx = 0; idx < BATCH_SIZE; idx++)
     {
         // Move the base pointer
         current_frame_base += frame_offsets[idx];
@@ -247,8 +240,14 @@ int main(void)
         udp->check = cord_htons(cord_calculate_udp_checksum_ipv4(ip)); // for both IP(v4) and UDP header checksums...
 
         // Send a single UDP packet over AF_XDP
-        af_xdp_send_single_frame(xsk_a, frame_offsets[idx], frame_lengths[idx]); // Attention - works over linear memory, not IOVEC!
+#ifndef BATCH_SIZE
+        af_xdp_send_single_frame(xsk_a, frame_offsets[idx], frame_lengths[idx]);
+#endif
     }
+
+#ifdef BATCH_SIZE
+    af_xdp_send_batch(xsk_a, frame_offsets, frame_lengths, BATCH_SIZE);
+#endif
 
     cord_app_cleanup();
 
