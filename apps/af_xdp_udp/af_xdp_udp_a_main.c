@@ -19,8 +19,6 @@
 #define XDP_FILL_RING_SIZE (XDP_NUM_FRAMES / 2)
 #define XDP_COMP_RING_SIZE (XDP_NUM_FRAMES / 2)
 
-#define SINGLE_FRAME 1
-
 const uint8_t *payload_arr[2] = {
     "Zero-copy UDP Crafted Packet!1!\n",
     "Zero-copy UDP Crafted Packet!2!\n"
@@ -51,7 +49,7 @@ static void cord_app_sigint_callback(int sig)
     CORD_ASYNC_SAFE_EXIT(CORD_OK);
 }
 
-static void af_xdp_send_frame(struct cord_xdp_socket_info *xdp_sock, uint64_t frame_offset, size_t frame_len)
+static void af_xdp_send_single_frame(struct cord_xdp_socket_info *xdp_sock, uint64_t frame_offset, size_t frame_len)
 {
     // Send packet
     CORD_LOG("[CordApp] Send UDP Packet...\n");
@@ -59,7 +57,7 @@ static void af_xdp_send_frame(struct cord_xdp_socket_info *xdp_sock, uint64_t fr
     uint32_t idx_tx = 0;
 
     // Reserve 1 descriptor slot in the TX ring
-    uint32_t reserved = xsk_ring_prod__reserve(&xdp_sock->tx, SINGLE_FRAME, &idx_tx);
+    uint32_t reserved = xsk_ring_prod__reserve(&xdp_sock->tx, 1, &idx_tx);
     if (reserved < 1)
     {
         CORD_LOG("[CordApp] Error: Failed to reserve TX ring slot!\n");
@@ -72,7 +70,7 @@ static void af_xdp_send_frame(struct cord_xdp_socket_info *xdp_sock, uint64_t fr
         tx_desc->len = frame_len;
 
         // Submit the reserved slot to the kernel TX ring
-        xsk_ring_prod__submit(&xdp_sock->tx, SINGLE_FRAME);
+        xsk_ring_prod__submit(&xdp_sock->tx, 1);
 
         // Kick the kernel driver to start transmission
         if (xsk_ring_prod__needs_wakeup(&xdp_sock->tx))
@@ -157,7 +155,7 @@ int main(void)
     //
     // Foreach packet we want to send - set payload and length, calculate checksum; move the UMEM pointer to the next container
     //
-    for (uint16_t idx = 0; idx < SINGLE_FRAME; idx++)
+    for (uint16_t idx = 0; idx < 1; idx++)
     {
         frame_offset = (idx % XDP_NUM_FRAMES) * XDP_FRAME_SIZE; // Or even better - some FIFO-like structure to track head/tail of the UMEM frame (chunk)
         uint8_t *current_frame = (uint8_t *)frm + frame_offset;
@@ -181,7 +179,7 @@ int main(void)
         ((cord_udp_hdr_t *)current_udp_hdr)->check = cord_htons(cord_calculate_udp_checksum_ipv4((cord_ipv4_hdr_t *)current_ip_hdr)); // for both IP(v4) and UDP header checksums...
 
         // Send a single UDP packet over AF_XDP
-        af_xdp_send_frame(xsk_a, frame_offset, frame_len); // Attention - works over linear memory, not IOVEC!
+        af_xdp_send_single_frame(xsk_a, frame_offset, frame_len); // Attention - works over linear memory, not IOVEC!
     }
 
     cord_app_cleanup();
