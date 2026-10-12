@@ -19,11 +19,12 @@
 #define XDP_FILL_RING_SIZE (XDP_NUM_FRAMES / 2)
 #define XDP_COMP_RING_SIZE (XDP_NUM_FRAMES / 2)
 
-#define BATCH_SIZE 2
+#define BATCH_SIZE 3
 
 const uint8_t *payload_arr[BATCH_SIZE] = {
-    "Zero-copy UDP Crafted Packet!1!\n",
-    "Zero-copy UDP Crafted Packet!2!\n"
+    "Hello\n",
+    "this is a UDP over AF_XDP\n",
+    "example application!\n"
 };
 
 static struct
@@ -240,14 +241,12 @@ int main(void)
         udp->check = cord_htons(cord_calculate_udp_checksum_ipv4(ip)); // for both IP(v4) and UDP header checksums...
 
         // Send a single UDP packet over AF_XDP
-#ifndef BATCH_SIZE
-        af_xdp_send_single_frame(xsk_a, frame_offsets[idx], frame_lengths[idx]);
-#endif
+        //
+        // af_xdp_send_single_frame(xsk_a, frame_offsets[idx], frame_lengths[idx]);
+        //
     }
 
-#ifdef BATCH_SIZE
     af_xdp_send_batch(xsk_a, frame_offsets, frame_lengths, BATCH_SIZE);
-#endif
 
     cord_app_cleanup();
 
