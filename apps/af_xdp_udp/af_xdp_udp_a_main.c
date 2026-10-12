@@ -20,8 +20,11 @@
 #define XDP_COMP_RING_SIZE (XDP_NUM_FRAMES / 2)
 
 #define SINGLE_FRAME 1
-#define PAYLOAD "Zero-copy UDP Crafted Packet!!!\n"
-#define PAYLOAD_LEN 32
+
+const uint8_t *payload_arr[2] = {
+    "Zero-copy UDP Crafted Packet!1!\n",
+    "Zero-copy UDP Crafted Packet!2!\n"
+};
 
 static struct
 {
@@ -140,7 +143,7 @@ int main(void)
     ip->version = 4;
     ip->ihl = 5; // Base header
     ip->tos = 0;
-    ip->id = cord_htons(123);
+    ip->id = cord_htons(123); // ID 123 hard-coded (should be set iteratively)
     ip->frag_off = cord_htons(0x4000); // No IP fragmentation
     ip->ttl = 32;
     ip->protocol = CORD_IPPROTO_UDP;
@@ -154,15 +157,15 @@ int main(void)
     //
     // Foreach packet we want to send - set payload and length, calculate checksum; move the UMEM pointer to the next container
     //
-    for (uint16_t umem_frame_idx = 0; umem_frame_idx < SINGLE_FRAME; umem_frame_idx++)
+    for (uint16_t idx = 0; idx < SINGLE_FRAME; idx++)
     {
-        frame_offset = (umem_frame_idx % XDP_NUM_FRAMES) * XDP_FRAME_SIZE;
+        frame_offset = (idx % XDP_NUM_FRAMES) * XDP_FRAME_SIZE; // Or even better - some FIFO-like structure to track head/tail of the UMEM frame (chunk)
         uint8_t *current_frame = (uint8_t *)frm + frame_offset;
         uint8_t *current_ip_hdr  = (uint8_t *)ip + frame_offset;
         uint8_t *current_udp_hdr = (uint8_t *)udp + frame_offset;
 
         // Calculate payload/packet/frame sizes
-        const int payload_len = PAYLOAD_LEN;
+        const int payload_len = strlen((const char *)payload_arr[idx]);
         const int ip_total_len = sizeof(cord_ipv4_hdr_t) + sizeof(cord_udp_hdr_t) + payload_len;
         size_t frame_len = sizeof(cord_eth_hdr_t) + ip_total_len;
 
@@ -170,7 +173,7 @@ int main(void)
 
         // Payload
         uint8_t *payload = (uint8_t *) (current_frame + sizeof(cord_eth_hdr_t) + sizeof(cord_ipv4_hdr_t) + sizeof(cord_udp_hdr_t));
-        memcpy((void *)payload, (void *)PAYLOAD, PAYLOAD_LEN);
+        memcpy((void *)payload, (void *)payload_arr[idx], payload_len);
 
         // Checksums
         ((cord_ipv4_hdr_t *)current_ip_hdr)->tot_len = cord_htons(ip_total_len);
