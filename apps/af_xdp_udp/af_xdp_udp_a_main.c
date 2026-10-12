@@ -12,14 +12,12 @@
 
 #define ETH_IFACE_A_NAME "veth1"
 
-#define XDP_NUM_FRAMES 64
+#define XDP_NUM_FRAMES 32
 #define XDP_FRAME_SIZE 2048
 #define XDP_RX_RING_SIZE (XDP_NUM_FRAMES / 2)
 #define XDP_TX_RING_SIZE (XDP_NUM_FRAMES / 2)
 #define XDP_FILL_RING_SIZE (XDP_NUM_FRAMES / 2)
 #define XDP_COMP_RING_SIZE (XDP_NUM_FRAMES / 2)
-
-#define BATCH_SIZE 3
 
 static struct
 {
@@ -30,10 +28,25 @@ static struct
     .frame_lengths = { 0 },
 }; // Or probably a FIFO over this...
 
+#define BATCH_SIZE (XDP_NUM_FRAMES / 2)
+
 const uint8_t *payload_arr[BATCH_SIZE] = {
-    "Hello\n",
-    "this is a UDP over AF_XDP\n",
-    "example application!\n"
+    "Payload #0.\n",
+    "Payload #1..\n",
+    "Payload #2...\n",
+    "Payload #3....\n",
+    "Payload #4.....\n",
+    "Payload #5......\n",
+    "Payload #6.......\n",
+    "Payload #7........\n",
+    "Payload #8.........\n",
+    "Payload #9..........\n",
+    "Payload #10..........\n",
+    "Payload #11...........\n",
+    "Payload #12............\n",
+    "Payload #13.............\n",
+    "Payload #14..............\n",
+    "Payload #15...............\n"
 };
 
 static struct
