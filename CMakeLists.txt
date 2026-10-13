@@ -45,47 +45,9 @@ add_subdirectory(modules/cord-craft)
 # Restore strict C23 for downstream
 set(CMAKE_C_EXTENSIONS OFF CACHE BOOL "" FORCE)
 
-# 6. Example apps
-add_subdirectory(apps/l2_switch)
-add_subdirectory(apps/l3_router)
-add_subdirectory(apps/l2_patch)
-add_subdirectory(apps/l2_patch_log_ethtype)
-add_subdirectory(apps/l2_patch_dot1q)
-add_subdirectory(apps/l2_patch_cbpf)
-
-if(ENABLE_EBPF)
-  add_subdirectory(apps/l2_patch_ebpf) # See the instructions at the beginnig of l2_patch_ebpf_main.c to build the eBPF part
-endif()
-
-add_subdirectory(apps/l2_tpacketv3_patch)
-add_subdirectory(apps/l2_tpacketv3_patch_log_ethtype)
-
-if(ENABLE_DPDK_DATAPLANE)
-  add_subdirectory(apps/l2_dpdk_patch)
-  add_subdirectory(apps/l2_dpdk_patch_log_ethtype)
-  add_subdirectory(apps/l2_dpdk_patch_workers)
-endif()
-
+# 6. Example apps (for the OCUDU proposal only)
 if(ENABLE_XDP_DATAPLANE)
-  # The AF_XDP UDP/IP pseudo-stack
-  add_subdirectory(apps/af_xdp_udp)
-
-  add_subdirectory(apps/l2_xdp_patch)
-  add_subdirectory(apps/l2_xdp_patch_log_ethtype)
-
   if(ENABLE_EBPF)
-    add_subdirectory(apps/l2_xdp_ebpf) # See the instructions at the beginnig of l2_xdp_patch_ebpf_main.c to build the eBPF part
+    add_subdirectory(apps/af_xdp_udp)
   endif()
 endif()
-
-add_subdirectory(apps/l3_udp_tunnel)
-add_subdirectory(apps/l3_tcp_tunnel)
-add_subdirectory(apps/l3_sctp_tunnel)
-add_subdirectory(apps/l3_pseudo_tunnel)
-
-if(ENABLE_OPENCL)
-  add_subdirectory(apps/ids_opencl)
-endif()
-
-add_subdirectory(tests/cam_test)
-add_subdirectory(tests/lpm_test)

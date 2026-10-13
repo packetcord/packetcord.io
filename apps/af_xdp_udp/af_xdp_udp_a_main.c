@@ -47,7 +47,7 @@ const uint8_t *payload_arr[BATCH_SIZE] = {
     "Payload #13.............\n",
     "Payload #14..............\n",
     "Payload #15...............\n"
-};
+}; // GTP-U will reside here as payload, but keep it the strings for easier logging...
 
 static struct
 {
