@@ -1,3 +1,7 @@
+//
+// Note: sudo ip netns exec ns2 ethtool -L enp11s0f1np1 combined 1
+//
+
 #ifdef ENABLE_XDP_DATAPLANE
 
 #include <cord_flow/event_handler/cord_linux_api_event_handler.h>
@@ -171,10 +175,33 @@ int main(void)
                 {
                     for (ssize_t idx = 0; idx < rx_frames; idx++)
                     {
-                        uint8_t *hw_offload_payload_base = (uint8_t *)xsk_umem__get_data(xsk_b->umem_area, umem_frame_tracker.frame_offsets[idx]);
+                        uint8_t *frame_base = (uint8_t *)xsk_umem__get_data(xsk_b->umem_area, umem_frame_tracker.frame_offsets[idx]);
 
-                        for (uint32_t i = 0; i < umem_frame_tracker.frame_lengths[idx]; i++)
-                                CORD_LOG("%c", hw_offload_payload_base[i]);
+                        cord_eth_hdr_t *eth = cord_header_eth(frame_base);
+                        if (cord_get_field_eth_type_ntohs(eth) != CORD_ETH_P_IP)
+                            continue; // Only handle IPv4 packets
+
+                        cord_ipv4_hdr_t *ip = cord_header_ipv4_from_eth(eth);
+                        if (cord_get_field_ipv4_version(ip) != 4)
+                            continue; // Not IPv4
+
+                        uint32_t source_ip = cord_get_field_ipv4_src_addr(ip);
+                        int iphdr_len = cord_get_field_ipv4_header_length(ip);
+                        uint8_t *payload_ptr = NULL;
+                        uint32_t payload_len = 0;
+                        uint8_t payload_offset = 0;
+
+                        if (cord_compare_ipv4_protocol(ip, CORD_IPPROTO_UDP))
+                        {
+                            cord_udp_hdr_t *udp = cord_header_udp_ipv4(ip);
+                            payload_offset = sizeof(cord_eth_hdr_t) + iphdr_len + sizeof(cord_udp_hdr_t);
+
+                            payload_ptr = frame_base + payload_offset;
+                            payload_len = cord_get_field_udp_length_ntohs(udp) - sizeof(cord_udp_hdr_t);
+
+                            for (uint32_t i = 0; i < payload_len; i++)
+                                CORD_LOG("%c", payload_ptr[i]);
+                        }
                     }
                     af_xdp_release_rx_batch(xsk_b, umem_frame_tracker.frame_offsets, rx_frames);
                 }
