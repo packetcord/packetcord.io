@@ -2,8 +2,16 @@
 // Reference: https://docs.ebpf.io/linux/concepts/af_xdp/
 //
 
+#include <linux/types.h>
 #include <linux/bpf.h>
+#include <linux/if_ether.h>
+#include <linux/ip.h>
+#include <linux/ipv6.h>
+#include <linux/udp.h>
+#include <linux/in.h>
+
 #include <bpf/bpf_helpers.h>
+#include <bpf/bpf_endian.h>
 
 struct {
     __uint(type, BPF_MAP_TYPE_XSKMAP);
