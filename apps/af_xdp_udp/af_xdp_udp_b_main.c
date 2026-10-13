@@ -52,7 +52,7 @@ static void cord_app_cleanup(void)
 
 static void cord_app_sigint_callback(int sig)
 {
-    CORD_LOG("[CordApp] Terminating the PacketCord AF_XDP Patch App!\n");
+    CORD_LOG("[CordApp] Terminating the PacketCord AF_XDP UDP App!\n");
     cord_app_cleanup();
     CORD_ASYNC_SAFE_EXIT(CORD_OK);
 }
@@ -112,7 +112,7 @@ int main(void)
     struct cord_xdp_socket_info *xsk_b;
     ssize_t rx_frames = 0;
 
-    CORD_LOG("[CordApp] Launching the PacketCord AF_XDP Patch App!\n");
+    CORD_LOG("[CordApp] Launching the PacketCord AF_XDP UDP App!\n");
 
     signal(SIGINT, cord_app_sigint_callback);
 
