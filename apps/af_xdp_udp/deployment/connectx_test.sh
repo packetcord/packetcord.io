@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Script to set up network namespaces for iperf3 testing between two interfaces
-# This creates two isolated network namespaces and connects them via physical interfaces
-
 set -e  # Exit on error
 
 # Configuration
@@ -13,7 +10,7 @@ IF2="enp11s0f1np1"
 IP1="192.168.168.1/30"
 IP2="192.168.168.2/30"
 
-echo "=== Setting up network namespaces for iperf3 testing ==="
+echo "=== Setting up network namespaces ==="
 
 # Clean up any existing namespaces (optional)
 echo "Cleaning up existing namespaces..."
@@ -43,6 +40,7 @@ echo "Configuring $NS2..."
 sudo ip netns exec $NS2 ip link set $IF2 up
 sudo ip netns exec $NS2 ip addr add $IP2 dev $IF2
 sudo ip netns exec $NS2 ip link set lo up
+sudo ip netns exec $NS2 ethtool -L enp11s0f1np1 combined 1
 
 # Show configuration
 echo ""
@@ -66,6 +64,16 @@ sudo ip netns exec $NS2 ping -c 3 192.168.168.1
 
 echo ""
 echo "=== Setup complete! ==="
+echo "To run the example, navigate to build/apps/af_xdp_udp and copy the compiled binaries to /tmp"
+echo "Then, run both sides as follows:"
+echo "    cd /tmp"
+echo ""
+echo "    In one terminal window, execute:"
+echo "    sudo ip netns exec ns2 /tmp/af_xdp_udp_b_mlx5_app"
+echo ""
+echo "    In another terminal window, execute:"
+echo "    sudo ip netns exec ns1 /tmp/af_xdp_udp_a_mlx5_app"
+
 echo ""
 
 echo ""

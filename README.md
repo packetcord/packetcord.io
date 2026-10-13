@@ -1,4 +1,4 @@
-# AF_XDP UDP Example (OCUDU proposal)
+# AF_XDP UDP Example (OCUDU Proposal)
 
 ## Build instrcutions
 
