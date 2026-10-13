@@ -19,16 +19,16 @@
 #define XDP_FILL_RING_SIZE (XDP_NUM_FRAMES / 2)
 #define XDP_COMP_RING_SIZE (XDP_NUM_FRAMES / 2)
 
+#define BATCH_SIZE (XDP_NUM_FRAMES / 2)
+
 static struct
 {
-    uint64_t frame_offsets[XDP_NUM_FRAMES];
-    size_t frame_lengths[XDP_NUM_FRAMES];
+    uint64_t frame_offsets[BATCH_SIZE];
+    size_t frame_lengths[BATCH_SIZE];
 } umem_frame_tracker = {
     .frame_offsets = { 0 },
     .frame_lengths = { 0 },
 }; // Or probably a FIFO over this...
-
-#define BATCH_SIZE (XDP_NUM_FRAMES / 2)
 
 const uint8_t *payload_arr[BATCH_SIZE] = {
     "Payload #0.\n",
