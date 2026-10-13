@@ -7,7 +7,7 @@ cmake .. -DENABLE_XDP_DATAPLANE=ON -DENABLE_EBPF=ON --fresh
 make
 
 // Compile the eBPF C code into BPF bytecode using Clang
-clang -g -O2 -target bpf -c udp_rx_filter.bpf.c -o udp_rx_filter.bpf.o
+clang -g -O2 -target bpf -c udp_rx_filter.bpf.c -o ../../build/apps/af_xdp_udp/udp_rx_filter.bpf.o
 
 // Copy to the container (container name is `container_2` in the below command)
 docker cp udp_rx_filter.bpf.o container_2:/root/
@@ -22,8 +22,3 @@ mount -t bpf bpf /sys/fs/bpf
 // Dockerfile
 
 // MLX5 hardware
-
-## Upload
-build/apps/af_xdp_udp$ make && docker cp af_xdp_udp_a_app container_1:/root/ && docker cp af_xdp_udp_b_app container_2:/root/
-
-apps/af_xdp_udp$ clang -g -O2 -target bpf -c udp_rx_filter.bpf.c -o udp_rx_filter.bpf.o && docker cp udp_rx_filter.bpf.o container_2:/root/
