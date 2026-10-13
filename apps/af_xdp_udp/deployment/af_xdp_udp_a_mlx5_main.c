@@ -234,7 +234,7 @@ int main(void)
     }
 
     //
-    // Foreach packet we want to send - set payload and length, calculate checksum; move the UMEM pointer to the next container
+    // Foreach packet we want to send - access the corresponding UMEM chunk, put the payload, calculate lengths (and checksums)
     //
     for (uint16_t idx = 0; idx < BATCH_SIZE; idx++)
     {
