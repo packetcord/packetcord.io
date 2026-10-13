@@ -18,3 +18,8 @@ mount -t bpf bpf /sys/fs/bpf
 // Dockerfile
 
 // MLX5 hardware
+
+## Upload
+build/apps/af_xdp_udp$ make && docker cp af_xdp_udp_a_app container_1:/root/ && docker cp af_xdp_udp_b_app container_2:/root/
+
+apps/af_xdp_udp$ clang -g -O2 -target bpf -c udp_rx_filter.bpf.c -o udp_rx_filter.bpf.o && docker cp udp_rx_filter.bpf.o container_2:/root/

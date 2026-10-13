@@ -18,6 +18,8 @@
 
 #define BATCH_SIZE (XDP_NUM_FRAMES / 2)
 
+#define EXTERNAL_EBPF_PROGRAM ("udp_rx_filter.bpf.o")
+
 static struct
 {
     uint64_t frame_offsets[BATCH_SIZE];
@@ -31,6 +33,9 @@ static struct
 {
     CordFlowPoint *l2_xdp_b;
     CordEventHandler *evh;
+#ifdef EXTERNAL_EBPF_PROGRAM
+    struct xdp_program *bpf_prog;
+#endif
 } cord_app_context;
 
 static void cord_app_setup(void)
@@ -114,11 +119,27 @@ int main(void)
     xsk_b = cord_xdp_socket_alloc(ETH_IFACE_B_NAME, 0, XDP_NUM_FRAMES, XDP_FRAME_SIZE,
                                   XDP_RX_RING_SIZE, XDP_TX_RING_SIZE,
                                   XDP_FILL_RING_SIZE, XDP_COMP_RING_SIZE);
+#ifdef EXTERNAL_EBPF_PROGRAM
+    cord_xdp_socket_init(&xsk_b, false);
+#else
     cord_xdp_socket_init(&xsk_b, true);
+#endif
 
     cord_app_context.l2_xdp_b = CORD_CREATE_XDP_FLOW_POINT('B', &xsk_b);
 
     CORD_XDP_FLOW_POINT_FILL(cord_app_context.l2_xdp_b);
+
+#ifdef EXTERNAL_EBPF_PROGRAM
+    cord_app_context.bpf_prog = xdp_program__open_file(EXTERNAL_EBPF_PROGRAM, "xdp_sock", NULL);
+
+    if (libxdp_get_error(cord_app_context.bpf_prog))
+    {
+        CORD_ERROR("[CordApp] Failed to open eBPF program object\n");
+        return CORD_ERR;
+    }
+
+    CORD_FLOW_POINT_ATTACH_EBPF_PROGRAM(cord_app_context.l2_xdp_b, cord_app_context.bpf_prog, NULL);
+#endif
 
     cord_app_context.evh = CORD_CREATE_LINUX_API_EVENT_HANDLER('E', -1);
 
@@ -175,7 +196,7 @@ int main(void)
                             payload_len = cord_get_field_udp_length_ntohs(udp) - sizeof(cord_udp_hdr_t);
 
                             for (uint32_t i = 0; i < payload_len; i++)
-                                CORD_LOG("%c", payload_ptr[i]); // %.2X
+                                CORD_LOG("%c", payload_ptr[i]);
                         }
                     }
                     af_xdp_release_rx_batch(xsk_b, umem_frame_tracker.frame_offsets, rx_packets);

@@ -18,9 +18,9 @@ struct {
     __uint(max_entries, 256);
     __type(key, __u32);
     __type(value, __u32);
-} xsk SEC(".maps");
+} xsks_map SEC(".maps");
 
-SEC("xdp")
+SEC("xdp_sock")
 int rx(struct xdp_md *ctx)
 {
     void *data, *data_meta, *data_end;
@@ -55,5 +55,5 @@ int rx(struct xdp_md *ctx)
     if (udp->dest != bpf_htons(6060)) // Hard-coding our destination port
         return XDP_PASS;
 
-    return bpf_redirect_map(&xsk, ctx->rx_queue_index, XDP_PASS);
+    return bpf_redirect_map(&xsks_map, ctx->rx_queue_index, XDP_PASS);
 }
