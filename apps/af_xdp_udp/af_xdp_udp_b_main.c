@@ -110,7 +110,7 @@ int main(void)
 {
     cord_retval_t cord_retval;
     struct cord_xdp_socket_info *xsk_b;
-    ssize_t rx_packets = 0;
+    ssize_t rx_frames = 0;
 
     CORD_LOG("[CordApp] Launching the PacketCord AF_XDP Patch App!\n");
 
@@ -166,10 +166,10 @@ int main(void)
         {
             if (cord_app_context.evh->events[n].data.fd == cord_app_context.l2_xdp_b->io_handle)
             {
-                rx_packets = af_xdp_receive_batch(xsk_b, umem_frame_tracker.frame_offsets, umem_frame_tracker.frame_lengths, BATCH_SIZE);
-                if (rx_packets > 0)
+                rx_frames = af_xdp_receive_batch(xsk_b, umem_frame_tracker.frame_offsets, umem_frame_tracker.frame_lengths, BATCH_SIZE);
+                if (rx_frames > 0)
                 {
-                    for (ssize_t idx = 0; idx < rx_packets; idx++)
+                    for (ssize_t idx = 0; idx < rx_frames; idx++)
                     {
                         uint8_t *frame_base = (uint8_t *)xsk_umem__get_data(xsk_b->umem_area, umem_frame_tracker.frame_offsets[idx]);
 
@@ -199,7 +199,7 @@ int main(void)
                                 CORD_LOG("%c", payload_ptr[i]);
                         }
                     }
-                    af_xdp_release_rx_batch(xsk_b, umem_frame_tracker.frame_offsets, rx_packets);
+                    af_xdp_release_rx_batch(xsk_b, umem_frame_tracker.frame_offsets, rx_frames);
                 }
             }
         }
