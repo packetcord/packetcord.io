@@ -2,6 +2,10 @@
 
 ## Build instrcutions
 
+mkdir build && cd build
+cmake .. -DENABLE_XDP_DATAPLANE=ON -DENABLE_EBPF=ON --fresh
+make
+
 // Compile the eBPF C code into BPF bytecode using Clang
 clang -g -O2 -target bpf -c udp_rx_filter.bpf.c -o udp_rx_filter.bpf.o
 
