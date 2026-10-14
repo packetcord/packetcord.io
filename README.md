@@ -3,10 +3,23 @@
 ## Description
 This is an attempt to implement zero-copy communucation over the AF_XDP socket family. The working princle is divided into transmit and received paths, briefly described below.
 
+```console
+                    UMEM region
+  +--------------+--------------+   +--------------+
+  |              |              |   |              |
+  |   PAYLOAD    |   PAYLOAD    |   |   PAYLOAD    |
+  |              |              |   |              |
+  |--------------|--------------|   |--------------|
+  | UDP Header   | UDP Header   |...| UDP Header   |
+  | IPv4 Header  | IPv4 Header  |   | IPv4 Header  |
+  | Eth Header   | Eth Header   |   | Eth Header   |
+  +--------------+--------------+   +--------------+
+```
+
 ### Transmit path
 1. The UMEM region of N chucks (representing Ethernet frames) is first initialised with the necessary header information - Layer 2 (Ethernet), Layer 3 (IPv4) and UDP.
-   This is somehow similar to initialing a UDP socket.
-2. The application then sets the payload. Additionally this involves calculating and setting the necessary lengths and checksums.
+   This is somehow similar to initialising a UDP socket.
+2. The application then sets the payload. Additionally, this involves calculating and setting the necessary lengths and checksums.
 3. The frames are tramismitted (single or batch) over AF_XDP.
 
 ### Receive path
@@ -18,6 +31,7 @@ Several aspects were considered as part of this experimental work:
 - XDP and eBPF filtering: Both the default XDP program and a separate eBPF implementation capable of filtering packets up to Layer 4 is supported.
 - UMEM allocation and mapping - AF_XDP allocates its UMEM region using mmap(), making it possible to investigate the use of hugepages as an alternative memory allocation strategy.
 - EPOLL-based reception - works both in level trigger and edge trigger modes.
+- Offload and zero-copy - works on virual interfaces like `veth` in non-zero-copy mode, as well as on hardware NICs with complete XDP_ZEROCOPY support.
 
 Both the sender and the receiver have been tested against 'netcat' and observed in packet sniffers like `tcpdump` and `tshark` until achieving one-to-one representation (and behaviour) of the UDP.
 
