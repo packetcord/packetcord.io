@@ -1,8 +1,5 @@
 # AF_XDP UDP Example (OCUDU Project N3 GTP-U Offload Proposal)
 
-## Code
-Navigate to the apps/af_xdp_udp path.
-
 ## Description
 This is an attempt to implement zero-copy communucation over the AF_XDP socket family. The working princle is divided into transmit and received paths, briefly described below.
 
@@ -26,7 +23,8 @@ Both the sender and the receiver have been tested against 'netcat' and observed 
 
 > Note: This experimental work was conducted specifically to support the N3 GTP-U Offload Proposal. This branch can be removed from the repository upon request or other related reason.
 
-###
+## Code
+The `apps/af_xdp_udp` directory contains the code implementation and the related deployment scripts.
 
 ## Build instrcutions
 Clone the repository, checkout to the `af_xdp_udp` branch and build the example:
