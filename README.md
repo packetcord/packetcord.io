@@ -21,7 +21,7 @@ The working princle is divided into transmit and receive paths, briefly describe
 ```
 
 ### Transmit path
-1. The UMEM region of N chucks (representing Ethernet frames) is first initialised with the necessary header information - Layer 2 (Ethernet), Layer 3 (IPv4) and UDP.
+1. The UMEM region of N chucks (representing Ethernet frames) is first initialised with the necessary header information - Layer 2 (Ethernet), Layer 3 (IPv4) and Layer 4 (UDP).
    This is somehow similar to initialising a UDP socket.
 2. The application then sets the payload. Additionally, this involves calculating and setting the necessary lengths and checksums.
 3. The frames are tramismitted (single or batch) over AF_XDP.
