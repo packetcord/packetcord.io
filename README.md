@@ -33,7 +33,7 @@ The working princle is divided into transmit and receive paths, briefly describe
 Several aspects were considered as part of this experimental work:
 - Batch TX and RX processing: Since AF_XDP cannot work over IOVEC, batched transmission and reception are demonstrated as a relevant alternative.
 - XDP and eBPF filtering: Both the default XDP program and a separate eBPF program capable of filtering packets up to Layer 4 is supported and demonstrated.
-- UMEM allocation and mapping - AF_XDP allocates its UMEM region using mmap(), making it possible to use hugepages.
+- UMEM allocation and mapping - AF_XDP allocates its UMEM region using `mmap()`, making it possible to use hugepages.
 - EPOLL-based reception - works in both level-trigger and edge-trigger modes.
 - Offload and zero-copy - works on virual interfaces like `veth` in non-zero-copy mode, as well as on hardware NICs with complete `XDP_ZEROCOPY` support.
 
@@ -53,10 +53,10 @@ make
 ## Testbench
 Two testbenches are provided:
 - Containerised (over direct veth pair connection)
-- Bare-metal (over physical optical patch between the two ports of Mellanox ConnectX-4 Lx)
+- Bare-metal (over physical optical patch between the two ports of a `Mellanox ConnectX-4 Lx` NIC)
 
-Rationale is to demonstrate that the example will work both with true zero copy (XDP_ZEROCOPY supported by the NVIDIA hardware and driver) and also sucessfully fallback to the other modes (like XDP_COPY or XDP_SKB) in case
-deployed in a software environment.
+Rationale is to demonstrate that the example will work both with true zero copy (XDP_ZEROCOPY supported by the NVIDIA `mlx5` driver) and also sucessfully fallback to the other modes (like XDP_COPY or XDP_SKB) in case
+deployed in different software XDP (inc. virtualised) environments.
 
 ### Containerised
 ```console
@@ -118,7 +118,7 @@ Device:             /dev/mst/mt4117_pciconf0
 ```
 
 ## Launch
-Deployment shell scripts are provided for Both the containerised and bare-metal cases.
+Deployment shell scripts are provided for both the containerised and bare-metal cases.
 
 ### Containerised
 First, run the Docker topology:
