@@ -12,7 +12,7 @@ make
 ```
 
 ## Testbench
-Two testbenches have been provided:
+Two testbenches are provided:
 - Containerised (over direct veth pair connection)
 - Bare-metal (over physical optical patch between the two ports of Mellanox ConnectX-4Lx)
 
@@ -36,13 +36,13 @@ deployed in a software environment.
 
 ### Bare-metal
 ```console
-         Namespace A                              Namespace B
+         Namespace 1                              Namespace 2
   +-----------------------+                +-----------------------+
   |                       |                |                       |
   |                       |                |                       |
   |                       |  optical patch |                       |
   |          enp11s0f0np0 |<==============>| enp11s0f1np1          |
-  |         192.168.168.2 |     loop       | 192.168.168.2         |
+  |         192.168.168.2 |     (loop)     | 192.168.168.2         |
   |                       |                |                       |
   |                       |                |                       |
   |                       |                |                       |
@@ -78,7 +78,180 @@ Description:        ConnectX-4 Lx EN network interface card; 10GbE dual-port SFP
 Device:             /dev/mst/mt4117_pciconf0
 ```
 
-## Deploy
-... TBD ...
-### Dockerfile
-... TBD ...
+## Launch
+Deployment shell scripts are provided for Both the containerised and bare-metal cases.
+
+### Containerised
+First, run the Docker topology:
+```bash
+cd apps/af_xdp_udp/deployment/containers
+./deploy.sh
+```
+
+Then, copy the binaries to the corresponding containers:
+```bash
+# Go to the build location
+cd ../../../../build/apps/af_xdp_udp
+
+# Binary for Container A (sender only)
+docker cp af_xdp_udp_a_app container_1:/root/ 
+
+# Binary for Container B (receiver only)
+docker cp af_xdp_udp_b_app container_2:/root/
+docker cp udp_rx_filter.bpf.o container_2:/root/
+```
+
+Open shell to each container in a separate terminal window:
+```bash
+# To Container A
+docker exec -it container_1 /bin/sh
+```
+
+```bash
+# To Container B
+docker exec -it container_2 /bin/sh
+```
+
+Finally, run the examples:
+```bash
+# Inside the terminal window of Container B, launch the receiver binary
+# ./af_xdp_udp_b_app 
+[CordApp] Launching the PacketCord AF_XDP UDP App!
+[cord_xdp_socket_init] attempting zero-copy mode with dedicated UMEM...
+[cord_xdp_socket_init] fallback to copy mode
+libbpf: elf: skipping unrecognized data section(8) .xdp_run_config
+libbpf: elf: skipping unrecognized data section(9) xdp_metadata
+libbpf: elf: skipping unrecognized data section(7) xdp_metadata
+libbpf: elf: skipping unrecognized data section(7) xdp_metadata
+libxdp: No bpffs found at /sys/fs/bpf
+libxdp: Can't use dispatcher without a working bpffs
+libxdp: Falling back to loading single prog without dispatcher
+libbpf: elf: skipping unrecognized data section(7) xdp_metadata
+```
+
+```bash
+# Inside the terminal window of Container A, send the batch of UDP packets
+./# ./af_xdp_udp_a_app 
+[CordApp] Launching the PacketCord AF_XDP UDP App!
+[cord_xdp_socket_init] attempting zero-copy mode with dedicated UMEM...
+[cord_xdp_socket_init] fallback to copy mode
+libbpf: elf: skipping unrecognized data section(8) .xdp_run_config
+libbpf: elf: skipping unrecognized data section(9) xdp_metadata
+libbpf: elf: skipping unrecognized data section(7) xdp_metadata
+libbpf: elf: skipping unrecognized data section(7) xdp_metadata
+libxdp: No bpffs found at /sys/fs/bpf
+libxdp: Can't use dispatcher without a working bpffs
+libxdp: Falling back to loading single prog without dispatcher
+libbpf: elf: skipping unrecognized data section(7) xdp_metadata
+[CordApp] Sending batch of 16 UDP Packets...
+[CordApp] Batch of 16 packets enqueued and kernel kicked!
+[CordApp] Destroying all objects!
+libxdp: No bpffs found at /sys/fs/bpf
+```
+
+The log on the receiver end looks as follows:
+```console
+Payload #0.
+Payload #1..
+Payload #2...
+Payload #3....
+Payload #4.....
+Payload #5......
+Payload #6.......
+Payload #7........
+Payload #8.........
+Payload #9..........
+Payload #10..........
+Payload #11...........
+Payload #12............
+Payload #13.............
+Payload #14..............
+Payload #15...............
+```
+
+To cleanup (destroy )the Docker deployment, do the following:
+```bash
+# On the host, from the apps/af_xdp_udp/deployment/containers
+./cleanup.sh
+```
+
+### Bare-metal
+First, run the scripts that create the namespaces on the host that assign and configure the network interfaces (you may need to change the names, as they are currently hard-coded):
+```bash
+cd apps/af_xdp_udp/deployment/connectx
+sudo ./connectx_test.sh
+```
+
+Then, copy the binaries to the corresponding containers:
+```bash
+cp ../../../build/apps/af_xdp_udp/af_xdp_udp_a_mlx5_app /tmp/
+cp ../../../build/apps/af_xdp_udp/af_xdp_udp_b_mlx5_app /tmp/
+cp ../../../build/apps/af_xdp_udp/udp_rx_filter.bpf.o /tmp/
+```
+
+Then, run both sides as follows:
+```bash
+# Go to /tmp
+cd /tmp
+```
+
+```bash
+# Inside a separate terminal window (launch the receiver side first)
+sudo ip netns exec ns2 /tmp/af_xdp_udp_b_mlx5_app
+[sudo] password for vmetodiev: 
+[CordApp] Launching the PacketCord AF_XDP UDP App!
+[cord_xdp_socket_init] attempting zero-copy mode with dedicated UMEM...
+libbpf: elf: skipping unrecognized data section(7) xdp_metadata
+libbpf: elf: skipping unrecognized data section(7) xdp_metadata
+libxdp: No bpffs found at /sys/fs/bpf
+libxdp: Can't use dispatcher without a working bpffs
+libxdp: Falling back to loading single prog without dispatcher
+libbpf: elf: skipping unrecognized data section(7) xdp_metadata
+```
+
+> Note: Compared to the `veth` case, observe that here we do not have a fallback after the `attempting zero-copy mode with dedicated UMEM...` message. This is indeed XDP_ZEROCOPY mode.
+
+```bash
+# Inside a separate terminal window (the sender)
+sudo ip netns exec ns1 /tmp/af_xdp_udp_a_mlx5_app
+[CordApp] Launching the PacketCord AF_XDP UDP App!
+[cord_xdp_socket_init] attempting zero-copy mode with dedicated UMEM...
+libbpf: elf: skipping unrecognized data section(8) .xdp_run_config
+libbpf: elf: skipping unrecognized data section(9) xdp_metadata
+libbpf: elf: skipping unrecognized data section(7) xdp_metadata
+libbpf: elf: skipping unrecognized data section(7) xdp_metadata
+libxdp: No bpffs found at /sys/fs/bpf
+libxdp: Can't use dispatcher without a working bpffs
+libxdp: Falling back to loading single prog without dispatcher
+libbpf: elf: skipping unrecognized data section(7) xdp_metadata
+[CordApp] Sending batch of 16 UDP Packets...
+[CordApp] Batch of 16 packets enqueued and kernel kicked!
+[CordApp] Destroying all objects!
+libxdp: No bpffs found at /sys/fs/bpf
+```
+
+The log on the receiver end looks as follows:
+```console
+Payload #0.
+Payload #1..
+Payload #2...
+Payload #3....
+Payload #4.....
+Payload #5......
+Payload #6.......
+Payload #7........
+Payload #8.........
+Payload #9..........
+Payload #10..........
+Payload #11...........
+Payload #12............
+Payload #13.............
+Payload #14..............
+Payload #15...............
+```
+
+To cleanup (destroy )the namespace deployment, do the following:
+```bash
+# On the host, from the apps/af_xdp_udp/deployment/connectx
+sudo ./connectx_test_cleanup.sh
+```
