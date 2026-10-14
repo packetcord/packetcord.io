@@ -1,6 +1,6 @@
 # AF_XDP UDP Example (OCUDU Project N3 GTP-U Offload Proposal)
 
-> Note: This experimental work was conducted specifically to support the N3 GTP-U Offload Proposal. This branch can be removed from the repository upon request or other related reason.
+> Note: The current branch contains experimental work that was conducted specifically to support the N3 GTP-U Offload Proposal. It can eventually be removed from the repository upon request or other related reason.
 
 ## Description
 This is an experimental attempt to implement UDP communucation over the AF_XDP socket family. 
