@@ -64,7 +64,11 @@ sudo ip netns exec $NS2 ping -c 3 192.168.168.1
 
 echo ""
 echo "=== Setup complete! ==="
-echo "To run the example, navigate to build/apps/af_xdp_udp and copy the compiled binaries to /tmp"
+echo "To run the example, navigate to build/apps/af_xdp_udp and copy the compiled binaries to /tmp:"
+echo "    cp ../../../build/apps/af_xdp_udp/af_xdp_udp_a_mlx5_app /tmp/"
+echo "    cp ../../../build/apps/af_xdp_udp/af_xdp_udp_b_mlx5_app /tmp/"
+echo "    cp ../../../build/apps/af_xdp_udp/udp_rx_filter.bpf.o /tmp/"
+echo ""
 echo "Then, run both sides as follows:"
 echo "    cd /tmp"
 echo ""
