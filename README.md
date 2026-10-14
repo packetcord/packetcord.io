@@ -302,10 +302,10 @@ sudo ./connectx_test_cleanup.sh
 
 ## Future
 - Probably evolve towards a (zero-copy) UDP/IP stack.
-- Test the performance and resource utilisation - in terms of hardware, syscall count, throughput (with RFC2544), delay, jitter, etc.
+- Test the performance and resource utilisation - in terms of hardware, syscall count, throughput, etc.
 - Probably start working on an integration of the concept inside the OCUDU Project.
 
-## References
+## Resources
 - https://docs.ebpf.io/ebpf-library/
 - Google Gemini - helping with the XSK API, UMEM and AF_XDP socket creation
 - https://github.com/xdp-project/bpf-examples/tree/main/AF_XDP-example
