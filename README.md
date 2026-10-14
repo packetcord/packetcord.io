@@ -3,7 +3,7 @@
 > Note: This experimental work was conducted specifically to support the N3 GTP-U Offload Proposal. This branch can be removed from the repository upon request or other related reason.
 
 ## Description
-This is an attempt to implement zero-copy communucation over the AF_XDP socket family. The working princle is divided into transmit and receive paths, briefly described below.
+An attempt to implement UDP communucation over the AF_XDP socket family. The working princle is divided into transmit and receive paths, briefly described below.
 
 ```console
                     UMEM region
