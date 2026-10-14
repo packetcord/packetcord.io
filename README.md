@@ -169,7 +169,7 @@ Payload #14..............
 Payload #15...............
 ```
 
-To cleanup (destroy )the Docker deployment, do the following:
+To cleanup (destroy) the Docker deployment, do the following:
 ```bash
 # On the host, from the apps/af_xdp_udp/deployment/containers
 ./cleanup.sh
@@ -250,8 +250,18 @@ Payload #14..............
 Payload #15...............
 ```
 
-To cleanup (destroy )the namespace deployment, do the following:
+To cleanup (destroy) the namespace deployment, do the following:
 ```bash
 # On the host, from the apps/af_xdp_udp/deployment/connectx
 sudo ./connectx_test_cleanup.sh
 ```
+
+## Future
+- Probably evolve towards a (zero-copy) UDP/IP stack
+- Probably start working on an integration of the concept inside the OCUDU Project
+- Test the performance and resource utilisation - in terms of hardware, syscall count, throughput (with RFC2544), delay, jitter, etc.
+
+## References
+- https://docs.ebpf.io/ebpf-library/
+- Google Gemini - helping with the XSK API, UMEM and AF_XDP socket creation
+- https://github.com/xdp-project/bpf-examples/tree/main/AF_XDP-example
