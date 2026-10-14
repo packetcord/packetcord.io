@@ -33,7 +33,7 @@ Several aspects were considered as part of this experimental work:
 - XDP and eBPF filtering: Both the default XDP program and a separate eBPF program capable of filtering packets up to Layer 4 is supported and demonstrated.
 - UMEM allocation and mapping - AF_XDP allocates its UMEM region using mmap(), making it possible to use hugepages.
 - EPOLL-based reception - works in both level-trigger and edge-trigger modes.
-- Offload and zero-copy - works on virual interfaces like `veth` in non-zero-copy mode, as well as on hardware NICs with complete XDP_ZEROCOPY support.
+- Offload and zero-copy - works on virual interfaces like `veth` in non-zero-copy mode, as well as on hardware NICs with complete `XDP_ZEROCOPY` support.
 
 Both the sender and the receiver have been tested against 'netcat' and observed in packet sniffers like `tcpdump` and `tshark` until achieving one-to-one representation (and behaviour) of the UDP.
 
