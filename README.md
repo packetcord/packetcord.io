@@ -294,9 +294,9 @@ sudo ./connectx_test_cleanup.sh
 ```
 
 ## Limitations
-- Bypassing the kernel IP stack may result in unwanted ICMP messages (because there is no `bind()` operation that registers the port). One possible solution is to disable the ICMP.
-- Only IPv4 supported at OSI Layer 3.
-- Checksums for the IPv4 and UDP headers are calculated entirely in software - although this is not a tedious operation, those could be offload to the NIC (possibly as AF_XDP metadata).
+- Bypassing the kernel IP stack may result in unwanted ICMP messages (because there is no `bind()` call to register the port). One possible solution is to disable the ICMP.
+- Only IPv4 is supported at OSI Layer 3.
+- Checksums for the IPv4 and UDP headers are calculated entirely in software - although this is not a resource-intensive operation, those could be offload to the NIC (possibly as AF_XDP metadata).
 
 ## Future
 - Probably evolve towards a (zero-copy) UDP/IP stack
