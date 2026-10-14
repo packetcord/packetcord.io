@@ -29,13 +29,14 @@ An attempt to implement UDP communucation over the AF_XDP socket family. The wor
 2. For each received frame batch within a single EPOLL event, the payload of the UDP is extracted and used accordingly.
 
 Several aspects were considered as part of this experimental work:
-- Batch TX and RX processing: Since AF_XDP cannot work over IOVEC, batched transmission and reception were investigated as a potentially relevant optimization approach.
-- XDP and eBPF filtering: Both the default XDP program and a separate eBPF implementation capable of filtering packets up to Layer 4 is supported.
-- UMEM allocation and mapping - AF_XDP allocates its UMEM region using mmap(), making it possible to investigate the use of hugepages as an alternative memory allocation strategy.
-- EPOLL-based reception - works both in level trigger and edge trigger modes.
+- Batch TX and RX processing: Since AF_XDP cannot work over IOVEC, batched transmission and reception were investigated as a potentially relevant approach.
+- XDP and eBPF filtering: Both the default XDP program and a separate eBPF program capable of filtering packets up to Layer 4 is supported and demonstrated.
+- UMEM allocation and mapping - AF_XDP allocates its UMEM region using mmap(), making it possible to use hugepages.
+- EPOLL-based reception - works in both level-trigger and edge-trigger modes.
 - Offload and zero-copy - works on virual interfaces like `veth` in non-zero-copy mode, as well as on hardware NICs with complete XDP_ZEROCOPY support.
 
 Both the sender and the receiver have been tested against 'netcat' and observed in packet sniffers like `tcpdump` and `tshark` until achieving one-to-one representation (and behaviour) of the UDP.
+> Note: On some systems, bypassing the kernel stack may result in unwanted ICMP messages, so one possible solution is to disable the ICMP.
 
 ## Code
 The `apps/af_xdp_udp` directory contains the code implementation and the related deployment scripts.
