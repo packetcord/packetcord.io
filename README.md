@@ -1,5 +1,8 @@
 # AF_XDP UDP Example (OCUDU Proposal)
 
+## Description
+... TBD ...
+
 ## Build instrcutions
 Clone the repository, checkout to the `af_xdp_udp` branch and build the example:
 ```bash
@@ -9,7 +12,7 @@ make
 ```
 
 ## Testbench
-Two Testbenches have been provided:
+Two testbenches have been provided:
 - Containerised (over direct veth pair connection)
 - Bare-metal (over physical optical patch between the two ports of Mellanox ConnectX-4Lx)
 
@@ -78,4 +81,4 @@ Device:             /dev/mst/mt4117_pciconf0
 ## Deploy
 ... TBD ...
 ### Dockerfile
-... TBD ..
+... TBD ...
