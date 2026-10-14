@@ -3,18 +3,20 @@
 > Note: This experimental work was conducted specifically to support the N3 GTP-U Offload Proposal. This branch can be removed from the repository upon request or other related reason.
 
 ## Description
-An attempt to implement UDP communucation over the AF_XDP socket family. The working princle is divided into transmit and receive paths, briefly described below.
+This is an experimental attempt to implement UDP communucation over the AF_XDP socket family. 
+
+The working princle is divided into transmit and receive paths, briefly described below.
 
 ```console
                     UMEM region
   +--------------+--------------+   +--------------+
   |              |              |   |              |
-  |   PAYLOAD    |   PAYLOAD    |   |   PAYLOAD    |
-  |              |              |   |              |
+  |   PAYLOAD    |   PAYLOAD    |   |   PAYLOAD    |   Processed during
+  |              |              |   |              |      execution
   |--------------|--------------|   |--------------|
-  | UDP Header   | UDP Header   |...| UDP Header   |
-  | IPv4 Header  | IPv4 Header  |   | IPv4 Header  |
-  | Eth Header   | Eth Header   |   | Eth Header   |
+  + UDP Header   + UDP Header   +   + UDP Header   + ---------------------
+  | IPv4 Header  | IPv4 Header  |   | IPv4 Header  |   Pre-Initialised
+  | Eth Header   | Eth Header   |...| Eth Header   |
   +--------------+--------------+   +--------------+
 ```
 
