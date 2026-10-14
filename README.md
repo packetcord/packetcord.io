@@ -29,7 +29,7 @@ An attempt to implement UDP communucation over the AF_XDP socket family. The wor
 2. For each received frame batch within a single EPOLL event, the payload of the UDP is extracted and used accordingly.
 
 Several aspects were considered as part of this experimental work:
-- Batch TX and RX processing: Since AF_XDP cannot work over IOVEC, batched transmission and reception were investigated as a potentially relevant approach.
+- Batch TX and RX processing: Since AF_XDP cannot work over IOVEC, batched transmission and reception are demonstrated as a relevant alternative.
 - XDP and eBPF filtering: Both the default XDP program and a separate eBPF program capable of filtering packets up to Layer 4 is supported and demonstrated.
 - UMEM allocation and mapping - AF_XDP allocates its UMEM region using mmap(), making it possible to use hugepages.
 - EPOLL-based reception - works in both level-trigger and edge-trigger modes.
