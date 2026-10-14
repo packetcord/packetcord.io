@@ -23,8 +23,8 @@ This is an attempt to implement zero-copy communucation over the AF_XDP socket f
 3. The frames are tramismitted (single or batch) over AF_XDP.
 
 ### Receive path
-1. The frames filtered and received as batches from the AF_XDP.
-2. For each frame of the received batch within a single EPOLL event, the payload of the UDP is extracted and used accordingly.
+1. The frames are filtered and received as batches from the AF_XDP.
+2. For each received frame batch within a single EPOLL event, the payload of the UDP is extracted and used accordingly.
 
 Several aspects were considered as part of this experimental work:
 - Batch TX and RX processing: Since AF_XDP cannot work over IOVEC, batched transmission and reception were investigated as a potentially relevant optimization approach.
