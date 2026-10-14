@@ -18,7 +18,7 @@ deployed in a software environment.
 
 ### Containerised
 ```console
-          Node A                                   Node B
+         Container A                              Container B
   +-----------------------+                +-----------------------+
   |                       |                |                       |
   |                       |                |                       |
