@@ -299,9 +299,9 @@ sudo ./connectx_test_cleanup.sh
 - Checksums for the IPv4 and UDP headers are calculated entirely in software - although this is not a resource-intensive operation, those could be offload to the NIC (possibly as AF_XDP metadata).
 
 ## Future
-- Probably evolve towards a (zero-copy) UDP/IP stack
-- Probably start working on an integration of the concept inside the OCUDU Project
+- Probably evolve towards a (zero-copy) UDP/IP stack.
 - Test the performance and resource utilisation - in terms of hardware, syscall count, throughput (with RFC2544), delay, jitter, etc.
+- Probably start working on an integration of the concept inside the OCUDU Project.
 
 ## References
 - https://docs.ebpf.io/ebpf-library/
