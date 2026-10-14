@@ -1,7 +1,32 @@
-# AF_XDP UDP Example (OCUDU Proposal)
+# AF_XDP UDP Example (OCUDU Project N3 GTP-U Offload Proposal)
+
+## Code
+Navigate to the apps/af_xdp_udp path.
 
 ## Description
-... TBD ...
+This is an attempt to implement zero-copy communucation over the AF_XDP socket family. The working princle is divided into transmit and received paths, briefly described below.
+
+### Transmit path
+1. The UMEM region of N chucks (representing Ethernet frames) is first initialised with the necessary header information - Layer 2 (Ethernet), Layer 3 (IPv4) and UDP.
+   This is somehow similar to initialing a UDP socket.
+2. The application then sets the payload. Additionally this involves calculating and setting the necessary lengths and checksums.
+3. The frames are tramismitted (single or batch) over AF_XDP.
+
+### Receive path
+1. The frames filtered and received as batches from the AF_XDP.
+2. For each frame of the received batch within a single EPOLL event, the payload of the UDP is extracted and used accordingly.
+
+Several aspects were considered as part of this experimental work:
+- Batch TX and RX processing: Since AF_XDP cannot work over IOVEC, batched transmission and reception were investigated as a potentially relevant optimization approach.
+- XDP and eBPF filtering: Both the default XDP program and a separate eBPF implementation capable of filtering packets up to Layer 4 is supported.
+- UMEM allocation and mapping - AF_XDP allocates its UMEM region using mmap(), making it possible to investigate the use of hugepages as an alternative memory allocation strategy.
+- EPOLL-based reception - works both in level trigger and edge trigger modes.
+
+Both the sender and the receiver have been tested against 'netcat' and observed in packet sniffers like `tcpdump` and `tshark` until achieving one-to-one representation (and behaviour) of the UDP.
+
+> Note: This experimental work was conducted specifically to support the N3 GTP-U Offload Proposal. This branch can be removed from the repository upon request or other related reason.
+
+###
 
 ## Build instrcutions
 Clone the repository, checkout to the `af_xdp_udp` branch and build the example:
@@ -14,7 +39,7 @@ make
 ## Testbench
 Two testbenches are provided:
 - Containerised (over direct veth pair connection)
-- Bare-metal (over physical optical patch between the two ports of Mellanox ConnectX-4Lx)
+- Bare-metal (over physical optical patch between the two ports of Mellanox ConnectX-4 Lx)
 
 Rationale is to demonstrate that the example will work both with true zero copy (XDP_ZEROCOPY supported by the NVIDIA hardware and driver) and also sucessfully fallback to the other modes (like XDP_COPY or XDP_SKB) in case
 deployed in a software environment.
