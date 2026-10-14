@@ -36,7 +36,6 @@ Several aspects were considered as part of this experimental work:
 - Offload and zero-copy - works on virual interfaces like `veth` in non-zero-copy mode, as well as on hardware NICs with complete XDP_ZEROCOPY support.
 
 Both the sender and the receiver have been tested against 'netcat' and observed in packet sniffers like `tcpdump` and `tshark` until achieving one-to-one representation (and behaviour) of the UDP.
-> Note: On some systems, bypassing the kernel stack may result in unwanted ICMP messages, so one possible solution is to disable the ICMP.
 
 ## Code
 The `apps/af_xdp_udp` directory contains the code implementation and the related deployment scripts.
@@ -293,6 +292,11 @@ To cleanup (destroy) the namespace deployment, do the following:
 # On the host, from the apps/af_xdp_udp/deployment/connectx
 sudo ./connectx_test_cleanup.sh
 ```
+
+## Limitations
+- Bypassing the kernel IP stack may result in unwanted ICMP messages (because there is no `bind()` operation that registers the port). One possible solution is to disable the ICMP.
+- Only IPv4 supported at OSI Layer 3.
+- Checksums for the IPv4 and UDP headers are calculated entirely in software - although this is not a tedious operation, those could be offload to the NIC (possibly as AF_XDP metadata).
 
 ## Future
 - Probably evolve towards a (zero-copy) UDP/IP stack
