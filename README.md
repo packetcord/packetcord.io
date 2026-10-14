@@ -1,7 +1,7 @@
 # AF_XDP UDP Example (OCUDU Project N3 GTP-U Offload Proposal)
 
 ## Description
-This is an attempt to implement zero-copy communucation over the AF_XDP socket family. The working princle is divided into transmit and received paths, briefly described below.
+This is an attempt to implement zero-copy communucation over the AF_XDP socket family. The working princle is divided into transmit and receive paths, briefly described below.
 
 ```console
                     UMEM region
