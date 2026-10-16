@@ -223,9 +223,9 @@ sudo ./connectx_test.sh
 
 Then, copy the binaries to the corresponding containers:
 ```bash
-cp ../../../build/apps/af_xdp_udp/af_xdp_udp_a_mlx5_app /tmp/
-cp ../../../build/apps/af_xdp_udp/af_xdp_udp_b_mlx5_app /tmp/
-cp ../../../build/apps/af_xdp_udp/udp_rx_filter.bpf.o /tmp/
+cp ../../../../build/apps/af_xdp_udp/af_xdp_udp_a_mlx5_app /tmp/
+cp ../../../../build/apps/af_xdp_udp/af_xdp_udp_b_mlx5_app /tmp/
+cp ../../../../build/apps/af_xdp_udp/udp_rx_filter.bpf.o /tmp/
 ```
 
 Then, run both sides as follows:
