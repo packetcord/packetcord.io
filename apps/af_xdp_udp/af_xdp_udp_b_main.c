@@ -174,13 +174,15 @@ int main(void)
                         uint8_t *frame_base = (uint8_t *)xsk_umem__get_data(xsk_b->umem_area, umem_frame_tracker.frame_offsets[idx]);
 
                         cord_eth_hdr_t *eth = cord_header_eth(frame_base);
+#ifndef EXTERNAL_EBPF_PROGRAM
                         if (cord_get_field_eth_type_ntohs(eth) != CORD_ETH_P_IP)
                             continue; // Only handle IPv4 packets
-
+#endif
                         cord_ipv4_hdr_t *ip = cord_header_ipv4_from_eth(eth);
+#ifndef EXTERNAL_EBPF_PROGRAM
                         if (cord_get_field_ipv4_version(ip) != 4)
                             continue; // Not IPv4
-
+#endif
                         uint32_t source_ip = cord_get_field_ipv4_src_addr(ip);
                         int iphdr_len = cord_get_field_ipv4_header_length(ip);
                         uint8_t *payload_ptr = NULL;
