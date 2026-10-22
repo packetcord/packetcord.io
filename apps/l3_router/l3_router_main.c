@@ -367,7 +367,7 @@ int main(void)
                 if (rx_bytes < sizeof(cord_eth_hdr_t))
                     continue;
 
-                if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUD(cord_app_context.port_0) != CORD_OK)
+                if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUND(cord_app_context.port_0) != true)
                     continue;
 
                 cord_route_packet(0, buffer, rx_bytes);
@@ -385,7 +385,7 @@ int main(void)
                 if (rx_bytes < sizeof(cord_eth_hdr_t))
                     continue;
 
-                if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUD(cord_app_context.port_1) != CORD_OK)
+                if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUND(cord_app_context.port_1) != true)
                     continue;
 
                 cord_route_packet(1, buffer, rx_bytes);
@@ -403,7 +403,7 @@ int main(void)
                 if (rx_bytes < sizeof(cord_eth_hdr_t))
                     continue;
 
-                if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUD(cord_app_context.port_2) != CORD_OK)
+                if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUND(cord_app_context.port_2) != true)
                     continue;
 
                 cord_route_packet(2, buffer, rx_bytes);
@@ -421,7 +421,7 @@ int main(void)
                 if (rx_bytes < sizeof(cord_eth_hdr_t))
                     continue;
 
-                if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUD(cord_app_context.port_3) != CORD_OK)
+                if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUND(cord_app_context.port_3) != true)
                     continue;
 
                 cord_route_packet(3, buffer, rx_bytes);

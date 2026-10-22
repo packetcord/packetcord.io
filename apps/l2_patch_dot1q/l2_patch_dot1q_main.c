@@ -92,7 +92,7 @@ int main(void)
                 if (rx_bytes < sizeof(cord_eth_hdr_t))
                     continue; // Packet too short to contain Ethernet header
 
-                if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUD(cord_app_context.l2_eth_a) != CORD_OK)
+                if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUND(cord_app_context.l2_eth_a) != true)
                     continue; // Ensure this is not an outgoing packet
 
                 // Push a Dot1Q VLAN tag
@@ -128,7 +128,7 @@ int main(void)
                 if (rx_bytes < sizeof(cord_eth_hdr_t))
                     continue; // Packet too short to contain Ethernet header
 
-                if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUD(cord_app_context.l2_eth_b) != CORD_OK)
+                if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUND(cord_app_context.l2_eth_b) != true)
                     continue; // Ensure this is not an outgoing packet
 
                 cord_retval = CORD_FLOW_POINT_TX(cord_app_context.l2_eth_a, 0, pkt_desc.data, rx_bytes, &tx_bytes);

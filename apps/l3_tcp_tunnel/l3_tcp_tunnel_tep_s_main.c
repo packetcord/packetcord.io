@@ -127,7 +127,7 @@ int main(void)
                 if (rx_bytes < sizeof(cord_eth_hdr_t) + iphdr_len)
                     continue; // IP header incomplete
 
-                if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUD(cord_app_context.l2_eth) != CORD_OK)
+                if (CORD_L2_RAW_SOCKET_FLOW_POINT_ENSURE_INBOUND(cord_app_context.l2_eth) != true)
                     continue; // Ensure this is not an outgoing packet
 
                 if (rx_bytes < sizeof(cord_eth_hdr_t) + iphdr_len + sizeof(cord_tcp_hdr_t))
